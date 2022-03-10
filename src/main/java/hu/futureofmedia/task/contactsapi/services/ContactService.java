@@ -9,6 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
+
 @Service
 @Validated
 public class ContactService implements IContactService {
@@ -20,13 +22,18 @@ public class ContactService implements IContactService {
     }
 
     @Override
-    public Page<Contact> findAllBooks(Integer page)
+    public Page<Contact> findAllContacts(Integer page)
     {
         return contactRepository.findAll(createNewPageable(page));
     }
 
+    @Override
+    public void addContact(@Valid Contact contact) {
+        contactRepository.save(contact);
+    }
+
     public Pageable createNewPageable(Integer page)
     {
-        return PageRequest.of(page == null ? 0 : page,10, Sort.by("fullName"));
+        return PageRequest.of(page == null ? 0 : page,10/*Sort.by("fullName")*/);
     }
 }
