@@ -1,10 +1,13 @@
 package hu.futureofmedia.task.contactsapi.entities;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -33,21 +36,27 @@ public class Contact {
     @Column
     private String phoneNumber;
 
-    @Column(nullable = false)
-    private Status status;
+    @OneToOne
+    @JoinColumn(name = "company_id")
+    @NotNull
+    private Company company;
 
     @Column
     private String comment;
 
-    @OneToOne
-    private Company company;
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Status status;
 
+    @CreatedDate
+    @Temporal(TemporalType.DATE)
     @Column
-    private Date createdDate;
+    private Date createdDate = new Date(System.currentTimeMillis());
 
+    @LastModifiedDate
+    @Temporal(TemporalType.DATE)
     @Column
-    private Date lastModifiedDate;
-
+    private Date lastModifiedDate = new Date(System.currentTimeMillis());
 
     public Long getId() {
         return id;
