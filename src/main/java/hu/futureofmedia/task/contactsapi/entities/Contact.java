@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -24,16 +25,20 @@ public class Contact {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank
     private String firstName;
 
     @Column(nullable = false)
+    @NotBlank
     private String lastName;
 
     @Column(nullable = false)
     @Email
+    @NotBlank
     private String emailAddress;
 
     @Column
+    @NotBlank
     private String phoneNumber;
 
     @OneToOne

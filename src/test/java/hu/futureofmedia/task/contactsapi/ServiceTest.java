@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.TransactionSystemException;
 
 import javax.validation.ConstraintViolationException;
 
@@ -28,6 +29,42 @@ public class ServiceTest {
     @Autowired
     private CompanyRepository companyRepository;
 
+    @Test
+    void updateExistingContactTest()
+    {
+        Contact input = createValidContact();
+        service.addContact(input);
+
+        assertEquals(input.getFirstName(), "FirstName");
+        assertEquals(input.getLastName(), "LastName");
+
+        input.setFirstName("updatedFirstName");
+        input.setLastName("updatedLastName");
+
+        service.updateContact(input);
+
+        Contact output = service.findContactByID(input.getId()).get();
+
+        assertEquals(output.getFirstName(), "updatedFirstName");
+        assertEquals(output.getLastName(), "updatedLastName");
+    }
+
+    @Test
+    void updateNonExistingContactTest()
+    {
+        Contact input = createValidContact();
+        service.addContact(input);
+
+        assertEquals(input.getFirstName(), "FirstName");
+        assertEquals(input.getLastName(), "LastName");
+
+        input.setFirstName("");
+        input.setLastName("");
+
+        assertThrows(TransactionSystemException.class, () -> {
+            service.updateContact(input);
+        });
+    }
     @Test
     void findByValidIDTest(){
         Contact input = createValidContact();
@@ -96,6 +133,7 @@ public class ServiceTest {
         contact.setLastName("LastName");
         contact.setEmailAddress("emailAdress@gmail.com");
         companyRepository.save(new Company("Company #1"));
+        contact.setPhoneNumber("+36301234567");
         contact.setCompany(companyRepository.findCompanyByName("Company #1"));
         contact.setStatus(Status.ACTIVE);
 
