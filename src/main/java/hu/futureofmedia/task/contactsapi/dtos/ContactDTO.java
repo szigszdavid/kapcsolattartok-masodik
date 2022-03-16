@@ -9,6 +9,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Getter
@@ -19,18 +21,30 @@ public class ContactDTO {
 
     private Long id;
 
+    @NotNull
+    @NotBlank
     private String firstName;
 
+    @NotNull
+    @NotBlank
     private String lastName;
 
+    @NotNull
+    @NotBlank
     private String emailAddress;
 
-    private String phoneNumber;
+    @NotNull
+    @NotBlank
+    private String phoneNumberDTO;
 
+    @NotNull
+    @NotBlank
     private String status;
 
     private String comment;
 
+    @NotNull
+    @NotBlank
     private String companyName;
 
     private Date createdDate;
@@ -70,11 +84,11 @@ public class ContactDTO {
     }
 
     public String getPhoneNumber() {
-        return phoneNumber;
+        return phoneNumberDTO;
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+        this.phoneNumberDTO = phoneNumber;
     }
 
     public String getStatus() {
