@@ -95,7 +95,7 @@ public class ServiceTest {
         contact.setFirstName("FirstName");
         contact.setLastName("LastName");
         contact.setEmailAddress("emailAdress@gmail.com");
-        companyRepository.save(new Company(1L,"Company #1"));
+        companyRepository.save(new Company("Company #1"));
         contact.setCompany(companyRepository.findCompanyByName("Company #1"));
         contact.setStatus(Status.ACTIVE);
 

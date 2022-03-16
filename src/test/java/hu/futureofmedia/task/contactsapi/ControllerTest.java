@@ -16,7 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -43,8 +45,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = ContactController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class ControllerTest {
 
     @Autowired
@@ -53,34 +55,30 @@ public class ControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
-    private CompanyRepository companyRepository;
-
-    @MockBean
+    @Autowired
     private ContactRepository contactRepository;
 
-    @MockBean
-    private IContactService service;
-
+    @Autowired
+    private CompanyRepository companyRepository;
 
     @Test
     public void getAllContact() throws Exception
     {
-        createTestContact();
-        createTestContact();
+        createTestContact("Take2");
+        //createTestContact("Take2");
 
         mvc.perform(
                         get("/contacts").contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(2))))
-                .andExpect(jsonPath("$[0].firstName", is("FirstName")))
-                .andExpect(jsonPath("$[1].firstName", is("FirstName")));
+                //.andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(2))))
+                .andExpect(jsonPath("$.content.[0].firstName", is("Take1")))
+                .andExpect(jsonPath("$.content.[1].firstName", is("Take2")));
     }
 
     @Test
     void testFindContactByRealId() throws Exception {
-        createTestContact();
+        createTestContact("Take1");
 
         mvc.perform(get("/contacts/1")
                         .contentType("application/json"))
@@ -141,22 +139,23 @@ public class ControllerTest {
         contactDTO.setLastName("LastName");
         contactDTO.setEmailAddress("emailAdress@gmail.com");
         contactDTO.setPhoneNumber("+36301234567");
-        contactDTO.setCompanyName("Company #1");
+        contactDTO.setCompanyName("DTOCompany #1");
+        companyRepository.saveAndFlush(new Company(contactDTO.getCompanyName()));
         contactDTO.setStatus("ACTIVE");
 
         return contactDTO;
     }
 
-    private void createTestContact()
+    private void createTestContact(String firstName)
     {
         Contact contact = new Contact();
 
-        contact.setId(1L);
-        contact.setFirstName("FirstName");
+        contact.setFirstName(firstName);
         contact.setLastName("LastName");
         contact.setEmailAddress("emailAdress@gmail.com");
         contact.setPhoneNumber("+36301234567");
-        contact.setCompany(new Company(1L,"Company #1"));
+        companyRepository.save(new Company(firstName));
+        contact.setCompany(companyRepository.findCompanyByName(firstName));
         contact.setStatus(Status.ACTIVE);
 
         contactRepository.saveAndFlush(contact);
