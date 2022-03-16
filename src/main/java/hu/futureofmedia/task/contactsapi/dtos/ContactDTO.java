@@ -33,8 +33,6 @@ public class ContactDTO {
     @NotBlank
     private String emailAddress;
 
-    @NotNull
-    @NotBlank
     private String phoneNumberDTO;
 
     @NotNull

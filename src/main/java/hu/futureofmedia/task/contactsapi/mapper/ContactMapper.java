@@ -3,13 +3,11 @@ package hu.futureofmedia.task.contactsapi.mapper;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
-import hu.futureofmedia.task.contactsapi.repositories.CompanyRepository;
-import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.BeforeMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 @Mapper
 public abstract class ContactMapper {
@@ -21,6 +19,20 @@ public abstract class ContactMapper {
         }
         if (dto.getStatus() == "DELETED") {
             contact.setStatus(Status.DELETED);
+        }
+
+        String contactDTOPhoneNumberString = dto.getPhoneNumber();
+        PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+        try {
+
+            Phonenumber.PhoneNumber contactDTOPhoneNumberProto = phoneUtil.parse(contactDTOPhoneNumberString, "HU");
+            boolean isValid = phoneUtil.isValidNumber(contactDTOPhoneNumberProto);
+            if(isValid)
+            {
+                dto.setPhoneNumber(phoneUtil.format(contactDTOPhoneNumberProto, PhoneNumberUtil.PhoneNumberFormat.E164));
+            }
+        } catch (NumberParseException e) {
+            System.err.println("NumberParseException was thrown: " + e.toString());
         }
     }
 

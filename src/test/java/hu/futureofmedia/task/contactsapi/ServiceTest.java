@@ -13,6 +13,9 @@ import org.springframework.data.domain.Page;
 
 import javax.validation.ConstraintViolationException;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -26,7 +29,31 @@ public class ServiceTest {
     private CompanyRepository companyRepository;
 
     @Test
-    void testAddContactError() {
+    void findByValidIDTest(){
+        Contact input = createValidContact();
+
+        service.addContact(input);
+        Contact output = service.findContactByID(input.getId()).get();
+
+        assertEquals(input.getStatus(),output.getStatus());
+        assertEquals(input.getFirstName(),output.getFirstName());
+        assertEquals(input.getLastName(),output.getLastName());
+        assertEquals(input.getCompany().getName(),output.getCompany().getName());
+        assertEquals(input.getEmailAddress(),output.getEmailAddress());
+    }
+
+    @Test
+    void findByInvalidIdTest(){
+        Contact input = createValidContact();
+
+        service.addContact(input);
+
+        assertThrows(NoSuchElementException.class, () -> {
+            service.findContactByID(2L).get();
+        });
+    }
+    @Test
+    void testAddContactInvalid() {
 
         Contact input = createInValidContact();
 
@@ -43,12 +70,9 @@ public class ServiceTest {
 
         assertEquals(0, contactListBefore.getNumberOfElements());
 
-        System.out.println(contactListBefore);
-
         service.addContact(createValidContact());
 
         Page<Contact> contactListAfter = service.findAllContacts(null);
-
 
         assertEquals(1, contactListAfter.getNumberOfElements());
     }
@@ -67,10 +91,11 @@ public class ServiceTest {
 
         Contact contact = new Contact();
 
+        contact.setId(1L);
         contact.setFirstName("FirstName");
         contact.setLastName("LastName");
         contact.setEmailAddress("emailAdress@gmail.com");
-        companyRepository.save(new Company("Company #1"));
+        companyRepository.save(new Company(1L,"Company #1"));
         contact.setCompany(companyRepository.findCompanyByName("Company #1"));
         contact.setStatus(Status.ACTIVE);
 

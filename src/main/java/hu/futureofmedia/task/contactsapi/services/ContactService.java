@@ -5,11 +5,11 @@ import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @Service
 @Validated
@@ -30,6 +30,17 @@ public class ContactService implements IContactService {
     @Override
     public void addContact(@Valid Contact contact) {
         contactRepository.save(contact);
+    }
+
+
+    @Override
+    public void updateContact(Contact contact) {
+        contactRepository.save(contact);
+    }
+
+    @Override
+    public Optional<Contact> findContactByID(Long id) {
+        return contactRepository.findById(id);
     }
 
     public Pageable createNewPageable(Integer page)

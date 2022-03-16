@@ -1,5 +1,6 @@
 package hu.futureofmedia.task.contactsapi.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
@@ -22,7 +23,8 @@ public class Company {
         return name;
     }
 
-    public Company(String name) {
+    public Company(Long id, String name) {
+        this.id = id;
         this.name = name;
     }
 
