@@ -65,5 +65,15 @@ public class ContactController {
         contactService.updateContact(contact);
     }
 
+    @PutMapping("/delete/{id}")
+    public void deleteContact(@Valid @PathVariable Long id)
+    {
+        Contact contact = contactService.findContactByID(id).orElse(null);
+
+        contact.setStatus(Status.DELETED);
+
+        contactService.updateContact(contact);
+    }
+
 
 }

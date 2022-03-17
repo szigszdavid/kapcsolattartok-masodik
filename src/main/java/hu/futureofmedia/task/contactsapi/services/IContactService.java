@@ -17,4 +17,5 @@ public interface IContactService {
     void updateContact(Contact contact);
 
     Optional<Contact> findContactByID(Long id);
+
 }

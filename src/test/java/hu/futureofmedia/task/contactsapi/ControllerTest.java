@@ -64,6 +64,26 @@ public class ControllerTest {
     private CompanyRepository companyRepository;
 
     @Test
+    public void deleteContactTest() throws Exception
+    {
+        createTestContact("Take4");
+
+        mvc.perform(put("/contacts/delete/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        String actualResponseBody = mvc.perform(get("/contacts/1")
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.status", is("DELETED")))
+                .andReturn().getResponse().getContentAsString();
+    }
+
+    @Test
     public void updateContactTest() throws Exception {
 
         createTestContact("Take3");
@@ -86,8 +106,6 @@ public class ControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.firstName", is("FirstName")))
                 .andReturn().getResponse().getContentAsString();
-
-        //System.out.println(actualResponseBody);
 
     }
 
