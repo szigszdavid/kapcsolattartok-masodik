@@ -25,21 +25,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 
+import javax.validation.ConstraintViolationException;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -62,6 +64,85 @@ public class ControllerTest {
 
     @Autowired
     private CompanyRepository companyRepository;
+
+    @Test
+    public void invalidEmailAddressTest() throws Exception
+    {
+        ContactDTO contactDTO = createValidContact(1L);
+        contactDTO.setEmailAddress("valamigmail.com");
+
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(post("/contacts/add")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect(result -> assertEquals("Az e-mail címnek helyes formátumúnak kell lennie!", result.getResponse().getContentAsString()))
+                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
+
+    }
+
+    @Test
+    public void invalidPhoneNumberTest() throws Exception
+    {
+        ContactDTO contactDTO = createValidContact(1L);
+        contactDTO.setPhoneNumber("1234567");
+
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(post("/contacts/add")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NumberFormatException))
+                .andExpect(result -> assertEquals("A telefonszámnak helyes formátumúnak kell lennie", result.getResponse().getContentAsString()))
+                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
+    }
+
+    @Test
+    public void invalidCompanyTest() throws Exception
+    {
+        ContactDTO contactDTO = createValidContact(1L);
+        contactDTO.setCompanyName("Company #4");
+
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(post("/contacts/add")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect(result -> assertEquals("Nem létező cég lett kiválasztva", result.getResponse().getContentAsString()))
+                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
+    }
+
+    @Test
+    public void invalidStatusTest() throws Exception
+    {
+        ContactDTO contactDTO = createValidContact(1L);
+        contactDTO.setStatus("NEW");
+
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(post("/contacts/add")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
+                .andExpect(result -> assertEquals("Nem létező státusz lett beállítva, válasszon egyet a következőek közül: ACTIVE, DELETED", result.getResponse().getContentAsString()))
+                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
+    }
+
+    @Test
+    public void missingColumnDataTest() throws Exception
+    {
+        ContactDTO contactDTO = createValidContact(1L);
+        contactDTO.setFirstName("");
+
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(post("/contacts/add")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(result -> assertEquals(400, result.getResponse().getStatus()));
+    }
 
     @Test
     public void deleteContactTest() throws Exception

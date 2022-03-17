@@ -5,6 +5,7 @@ import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -45,6 +46,6 @@ public class ContactService implements IContactService {
 
     public Pageable createNewPageable(Integer page)
     {
-        return PageRequest.of(page == null ? 0 : page,10/*Sort.by("fullName")*/);
+        return PageRequest.of(page == null ? 0 : page,10, Sort.by("firstName").and(Sort.by("lastName")));
     }
 }

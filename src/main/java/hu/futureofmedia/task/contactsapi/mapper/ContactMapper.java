@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+import org.springframework.data.domain.Page;
 
 @Mapper
 public abstract class ContactMapper {
@@ -27,13 +28,23 @@ public abstract class ContactMapper {
 
             Phonenumber.PhoneNumber contactDTOPhoneNumberProto = phoneUtil.parse(contactDTOPhoneNumberString, "HU");
             boolean isValid = phoneUtil.isValidNumber(contactDTOPhoneNumberProto);
-            if(isValid)
+            System.out.println(contactDTOPhoneNumberString);
+            System.out.println(String.valueOf(contactDTOPhoneNumberProto.getNationalNumber()).length());
+            if(isValid && contactDTOPhoneNumberProto.getCountryCode() == 36 && String.valueOf(contactDTOPhoneNumberProto.getNationalNumber()).length() == 9)
             {
+                System.out.println(contactDTOPhoneNumberProto);
                 dto.setPhoneNumber(phoneUtil.format(contactDTOPhoneNumberProto, PhoneNumberUtil.PhoneNumberFormat.E164));
+            }
+            else
+            {
+                throw new NumberFormatException("Not a valid phone number");
             }
         } catch (NumberParseException e) {
             System.err.println("NumberParseException was thrown: " + e.toString());
         }
+
+        dto.setFullName(dto.getFirstName() + " " + dto.getLastName());
+
     }
 
     /*

@@ -17,6 +17,7 @@ create table contact
     status varchar(200),
     created_date date,
     last_modified_date date,
+    full_name varchar(200),
     constraint pk_contact primary key (id)
 );
 

@@ -49,6 +49,8 @@ public class ContactDTO {
 
     private Date lastModifiedDate;
 
+    private String fullName;
+
     public Long getId() {
         return id;
     }
@@ -127,5 +129,13 @@ public class ContactDTO {
 
     public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }

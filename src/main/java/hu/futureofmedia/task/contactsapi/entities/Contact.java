@@ -63,6 +63,9 @@ public class Contact {
     @Column
     private Date lastModifiedDate = new Date(System.currentTimeMillis());
 
+    @Column
+    private String fullName;
+
     public Long getId() {
         return id;
     }
@@ -143,4 +146,11 @@ public class Contact {
         this.lastModifiedDate = lastModifiedDate;
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 }
