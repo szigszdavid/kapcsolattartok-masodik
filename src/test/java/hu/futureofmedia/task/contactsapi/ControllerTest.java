@@ -31,14 +31,16 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -62,7 +64,35 @@ public class ControllerTest {
     private CompanyRepository companyRepository;
 
     @Test
-    public void getAllContact() throws Exception
+    public void updateContactTest() throws Exception {
+
+        createTestContact("Take3");
+
+        ContactDTO contactDTO = createValidContact(1L);
+
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(put("/contacts/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk());
+
+        String actualResponseBody = mvc.perform(get("/contacts/1")
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.firstName", is("FirstName")))
+                .andReturn().getResponse().getContentAsString();
+
+        //System.out.println(actualResponseBody);
+
+    }
+
+    @Test
+    public void getAllContactTest() throws Exception
     {
         createTestContact("Take2");
         //createTestContact("Take2");
@@ -77,7 +107,7 @@ public class ControllerTest {
     }
 
     @Test
-    void testFindContactByRealId() throws Exception {
+    void findContactByRealIdTest() throws Exception {
         createTestContact("Take1");
 
         mvc.perform(get("/contacts/1")
@@ -90,8 +120,8 @@ public class ControllerTest {
     }
 
     @Test
-    void testFindContactByFakeId() throws Exception {
-        ContactDTO contactDTO = createValidContact();
+    void findContactByFakeIdTest() throws Exception {
+        ContactDTO contactDTO = createValidContact(2L);
 
         MvcResult mvcResult = mvc.perform(get("/contacts/{id}",2)
                         .contentType("application/json"))
@@ -106,9 +136,9 @@ public class ControllerTest {
     }
 
     @Test
-    void testAddValidContact() throws Exception {
+    void addValidContactTest() throws Exception {
 
-        ContactDTO contactDTO = createValidContact();
+        ContactDTO contactDTO = createValidContact(1L);
         String body = objectMapper.writeValueAsString(contactDTO);
 
         mvc.perform(post("/contacts/add")
@@ -119,7 +149,7 @@ public class ControllerTest {
     }
 
     @Test
-    void testAddInvalidContact() throws Exception {
+    void addInvalidContactTest() throws Exception {
 
         ContactDTO contactDTO = new ContactDTO();
         String body = objectMapper.writeValueAsString(contactDTO);
@@ -130,11 +160,11 @@ public class ControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    private ContactDTO createValidContact()
+    private ContactDTO createValidContact(Long id)
     {
         ContactDTO contactDTO = new ContactDTO();
 
-        contactDTO.setId(1L);
+        contactDTO.setId(id);
         contactDTO.setFirstName("FirstName");
         contactDTO.setLastName("LastName");
         contactDTO.setEmailAddress("emailAdress@gmail.com");
