@@ -1,19 +1,28 @@
 package hu.futureofmedia.task.contactsapi.controllers;
 
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
+import hu.futureofmedia.task.contactsapi.dtos.OutputDTO;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
 import hu.futureofmedia.task.contactsapi.mapper.ContactMapper;
 import hu.futureofmedia.task.contactsapi.repositories.CompanyRepository;
 import hu.futureofmedia.task.contactsapi.services.IContactService;
+import org.hibernate.validator.constraints.CodePointLength;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.function.Function;
+
 import javax.validation.Valid;
 import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Validated
@@ -32,9 +41,30 @@ public class ContactController {
     }
 
     @GetMapping
-    public Page<Contact> findAllContacts(@RequestParam(name = "page", required = false) Integer page)
+    public List<OutputDTO> findAllContacts(@RequestParam(name = "page", required = false) Integer page)
     {
-        return contactService.findAllContacts(page);
+        //return contactService.findAllContacts(page);
+        Page<Contact> contacts = contactService.findAllContacts(page);
+
+        List<Contact> list = (List<Contact>) contacts.toList();
+        List<OutputDTO> outputDTOS = new ArrayList<>();
+
+        Iterator itr = list.iterator();
+        while(itr.hasNext()){
+
+            OutputDTO outputDTO = new OutputDTO();
+            Object[] obj = (Object[]) itr.next();
+
+            outputDTO.setFullName(String.valueOf(obj[0]));
+            outputDTO.setCompanyName(String.valueOf(obj[1]));
+            outputDTO.setEmailAddress(String.valueOf(obj[2]));
+            outputDTO.setPhoneNumber(String.valueOf(obj[3]));
+            outputDTO.setId(Long.valueOf(String.valueOf(obj[4])));
+
+            outputDTOS.add(outputDTO);
+        }
+
+        return outputDTOS;
     }
 
     @GetMapping("/{id}")

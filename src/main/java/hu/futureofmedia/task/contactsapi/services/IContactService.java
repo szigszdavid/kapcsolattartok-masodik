@@ -2,6 +2,7 @@ package hu.futureofmedia.task.contactsapi.services;
 
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -18,4 +19,5 @@ public interface IContactService {
 
     Optional<Contact> findContactByID(Long id);
 
+    public Pageable createNewPageable(Integer page);
 }

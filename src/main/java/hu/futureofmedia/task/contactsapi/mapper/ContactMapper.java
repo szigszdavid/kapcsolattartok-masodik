@@ -1,6 +1,7 @@
 package hu.futureofmedia.task.contactsapi.mapper;
 
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
+import hu.futureofmedia.task.contactsapi.dtos.OutputDTO;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
 import org.mapstruct.*;
@@ -14,7 +15,7 @@ import org.springframework.data.domain.Page;
 public abstract class ContactMapper {
 
     @BeforeMapping
-    protected void enrichDTOWithFuelType(ContactDTO dto, @MappingTarget Contact contact) {
+    protected void contactDTOToContactBeforeMapping(ContactDTO dto, @MappingTarget Contact contact) {
         if (dto.getStatus() == "ACTIVE") {
             contact.setStatus(Status.ACTIVE);
         }
@@ -22,18 +23,16 @@ public abstract class ContactMapper {
             contact.setStatus(Status.DELETED);
         }
 
-        String contactDTOPhoneNumberString = dto.getPhoneNumber();
+        String contactDTOPhoneNumberString = dto.getPhoneNumberDTO();
         PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
         try {
 
             Phonenumber.PhoneNumber contactDTOPhoneNumberProto = phoneUtil.parse(contactDTOPhoneNumberString, "HU");
             boolean isValid = phoneUtil.isValidNumber(contactDTOPhoneNumberProto);
-            System.out.println(contactDTOPhoneNumberString);
-            System.out.println(String.valueOf(contactDTOPhoneNumberProto.getNationalNumber()).length());
-            if(isValid && contactDTOPhoneNumberProto.getCountryCode() == 36 && String.valueOf(contactDTOPhoneNumberProto.getNationalNumber()).length() == 9)
+
+            if(isValid  && contactDTOPhoneNumberProto.getCountryCode() == 36 && String.valueOf(contactDTOPhoneNumberProto.getNationalNumber()).length() == 9)
             {
-                System.out.println(contactDTOPhoneNumberProto);
-                dto.setPhoneNumber(phoneUtil.format(contactDTOPhoneNumberProto, PhoneNumberUtil.PhoneNumberFormat.E164));
+                contact.setPhoneNumber(phoneUtil.format(contactDTOPhoneNumberProto, PhoneNumberUtil.PhoneNumberFormat.E164));
             }
             else
             {
@@ -43,17 +42,17 @@ public abstract class ContactMapper {
             System.err.println("NumberParseException was thrown: " + e.toString());
         }
 
-        dto.setFullName(dto.getFirstName() + " " + dto.getLastName());
-
     }
 
-    /*
-    @AfterMapping
-    protected void convertNameToUpperCase(ContactDTO dto, @MappingTarget Contact contact) {
-        contact.setCompany(companyRepository.findByName(dto.getCompanyName()));
+    @BeforeMapping
+    protected void contactToOutputDTOBeforeMapping(Contact contact, @MappingTarget OutputDTO outputDTO)
+    {
+        outputDTO.setFullName(contact.getFirstName() + " " + contact.getLastName());
     }
-        */
+
     public abstract Contact contactDTOToContact(ContactDTO dto);
+
+    public abstract OutputDTO contactToOutputDTO(Contact contact);
 
     //ContactDTO contactToContactDTO(Contact contact);
 }

@@ -86,7 +86,7 @@ public class ControllerTest {
     public void invalidPhoneNumberTest() throws Exception
     {
         ContactDTO contactDTO = createValidContact(1L);
-        contactDTO.setPhoneNumber("1234567");
+        contactDTO.setPhoneNumberDTO("1234567");
 
         String body = objectMapper.writeValueAsString(contactDTO);
 
@@ -267,7 +267,7 @@ public class ControllerTest {
         contactDTO.setFirstName("FirstName");
         contactDTO.setLastName("LastName");
         contactDTO.setEmailAddress("emailAdress@gmail.com");
-        contactDTO.setPhoneNumber("+36301234567");
+        contactDTO.setPhoneNumberDTO("+36301234567");
         contactDTO.setCompanyName("DTOCompany #1");
         companyRepository.saveAndFlush(new Company(contactDTO.getCompanyName()));
         contactDTO.setStatus("ACTIVE");

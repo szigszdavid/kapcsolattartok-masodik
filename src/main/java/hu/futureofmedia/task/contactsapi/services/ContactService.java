@@ -44,6 +44,7 @@ public class ContactService implements IContactService {
         return contactRepository.findById(id);
     }
 
+    @Override
     public Pageable createNewPageable(Integer page)
     {
         return PageRequest.of(page == null ? 0 : page,10, Sort.by("firstName").and(Sort.by("lastName")));
