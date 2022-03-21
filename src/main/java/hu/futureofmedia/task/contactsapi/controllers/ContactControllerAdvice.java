@@ -19,15 +19,15 @@ public class ContactControllerAdvice extends ResponseEntityExceptionHandler {
 
         String bodyOfResponse;
 
-        if (ex.getMessage().contains("Contact.contact.emailAddress: helyes formátumú e-mail címnek kell lennie"))
+        if (ex.getMessage().contains("must be a well-formed email address"))
         {
-            bodyOfResponse = "Az e-mail címnek helyes formátumúnak kell lennie!";
+            bodyOfResponse = "Helyes formátumú e-mail címnek kell lennie";
         }
-        else if(ex.getMessage().contains("Firstname can not be null"))
+        else if(ex.getMessage().contains("Vezetéknév megadása kötelező"))
         {
-            bodyOfResponse = "Meg kell adni a vezetéknevet";
+            bodyOfResponse = "Vezetéknév megadása kötelező";
         }
-        else if(ex.getMessage().contains("Firstname can not be blank"))
+        else if(ex.getMessage().contains("Vezetéknév nem lehet üres"))
         {
             bodyOfResponse = "Vezetéknév nem lehet üres";
         }

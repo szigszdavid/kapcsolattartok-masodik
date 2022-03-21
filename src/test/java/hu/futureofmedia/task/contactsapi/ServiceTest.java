@@ -50,7 +50,7 @@ public class ServiceTest {
     }
 
     @Test
-    void updateNonExistingContactTest()
+    void updateExistingContactWithBlankDataTest()
     {
         Contact input = createValidContact();
         service.addContact(input);
@@ -61,7 +61,7 @@ public class ServiceTest {
         input.setFirstName("");
         input.setLastName("");
 
-        assertThrows(TransactionSystemException.class, () -> {
+        assertThrows(ConstraintViolationException.class, () -> {
             service.updateContact(input);
         });
     }
@@ -85,12 +85,12 @@ public class ServiceTest {
 
         service.addContact(input);
 
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(ConstraintViolationException.class, () -> {
             service.findContactByID(2L).get();
         });
     }
     @Test
-    void testAddContactInvalid() {
+    void addInvalidContactTest() {
 
         Contact input = createInValidContact();
 
@@ -101,7 +101,7 @@ public class ServiceTest {
     }
 
     @Test
-    void testAddContactValid()
+    void addValidContactTest()
     {
         Page<Contact> contactListBefore = service.findAllContacts(null);
 
@@ -112,6 +112,16 @@ public class ServiceTest {
         Page<Contact> contactListAfter = service.findAllContacts(null);
 
         assertEquals(1, contactListAfter.getNumberOfElements());
+    }
+
+    @Test
+    void findAllContactsTest()
+    {
+        Contact exampleInputOne = createValidContact();
+
+        service.addContact(exampleInputOne);
+
+        assertEquals(1, service.findAllContacts(0).getNumberOfElements());
     }
 
     private Contact createInValidContact() {

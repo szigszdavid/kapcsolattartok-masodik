@@ -93,7 +93,7 @@ public class ControllerTest {
                         .contentType("application/json")
                         .content(body))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
-                .andExpect(result -> assertEquals("Meg kell adni a vezetéknevet", result.getResponse().getContentAsString()))
+                .andExpect(result -> assertEquals("Vezetéknév megadása kötelező", result.getResponse().getContentAsString()))
                 .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
     }
 
@@ -109,7 +109,7 @@ public class ControllerTest {
                         .contentType("application/json")
                         .content(body))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
-                .andExpect(result -> assertEquals("Az e-mail címnek helyes formátumúnak kell lennie!", result.getResponse().getContentAsString()))
+                .andExpect(result -> assertEquals("Helyes formátumú e-mail címnek kell lennie", result.getResponse().getContentAsString()))
                 .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
 
     }
@@ -142,7 +142,7 @@ public class ControllerTest {
                         .contentType("application/json")
                         .content(body))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
-                .andExpect(result -> assertEquals("Nem létező cég lett kiválasztva", result.getResponse().getContentAsString()))
+                .andExpect(result -> assertEquals("Meg kell adni a cég nevét", result.getResponse().getContentAsString()))
                 .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
     }
 
@@ -162,19 +162,6 @@ public class ControllerTest {
                 .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
     }
 
-    @Test
-    public void missingColumnDataTest() throws Exception
-    {
-        ContactDTO contactDTO = createValidContact(1L);
-        contactDTO.setFirstName("");
-
-        String body = objectMapper.writeValueAsString(contactDTO);
-
-        mvc.perform(post("/contacts/add")
-                        .contentType("application/json")
-                        .content(body))
-                .andExpect(result -> assertEquals(400, result.getResponse().getStatus()));
-    }
 
     @Test
     public void deleteContactTest() throws Exception
@@ -279,17 +266,6 @@ public class ControllerTest {
 
     }
 
-    @Test
-    void addInvalidContactTest() throws Exception {
-
-        ContactDTO contactDTO = new ContactDTO();
-        String body = objectMapper.writeValueAsString(contactDTO);
-
-        mvc.perform(post("/contacts/add")
-                        .contentType("application/json")
-                        .content(body))
-                .andExpect(status().isBadRequest());
-    }
 
     private ContactDTO createValidContact(Long id)
     {

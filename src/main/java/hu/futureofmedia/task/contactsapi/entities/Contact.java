@@ -25,8 +25,8 @@ public class Contact {
     private Long id;
 
     @Column
-    @NotNull(message = "Firstname can not be null")
-    @NotBlank(message = "Firstname can not be blank")
+    @NotNull(message = "Vezetéknév megadása kötelező")
+    @NotBlank(message = "Vezetéknév nem lehet üres")
     private String firstName;
 
     @Column
