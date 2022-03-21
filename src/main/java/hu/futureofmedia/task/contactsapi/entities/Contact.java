@@ -24,46 +24,58 @@ public class Contact {
     @Column
     private Long id;
 
-    @Column(nullable = false)
-    @NotBlank
+    @Column
+    @NotNull(message = "Firstname can not be null")
+    @NotBlank(message = "Firstname can not be blank")
     private String firstName;
 
-    @Column(nullable = false)
-    @NotBlank
+    @Column
+    @NotNull(message = "Lastname can not be null")
+    @NotBlank(message = "Lastname can not be blank")
     private String lastName;
 
-    @Column(nullable = false)
+    @Column
     @Email
-    @NotBlank
+    @NotNull(message = "Email address can not be null")
+    @NotBlank(message = "Email address can not be blank")
     private String emailAddress;
 
     @Column
-    @NotBlank
+    @NotBlank(message = "Phone number can not be blank")
     private String phoneNumber;
 
     @OneToOne
     @JoinColumn(name = "company_id")
-    @NotNull
+    @NotNull(message = "Company can not be null")
     private Company company;
 
     @Column
     private String comment;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
+    @NotNull(message = "Status can not be null")
     private Status status;
 
     @CreatedDate
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column
     private Date createdDate = new Date(System.currentTimeMillis());
 
     @LastModifiedDate
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column
     private Date lastModifiedDate = new Date(System.currentTimeMillis());
 
-    @Column
-    private String fullName;
+    @PrePersist
+    private void setCreatedDatePrePersist()
+    {
+        createdDate = new Date(System.currentTimeMillis());
+    }
+
+    @PreUpdate
+    private void setLastModifiedDatePreUpdate()
+    {
+        lastModifiedDate = new Date(System.currentTimeMillis());
+    }
 
 }

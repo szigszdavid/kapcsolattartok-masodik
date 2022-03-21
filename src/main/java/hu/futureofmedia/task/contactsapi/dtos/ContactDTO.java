@@ -21,28 +21,28 @@ public class ContactDTO {
 
     private Long id;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Firstname can not be null")
+    @NotBlank(message = "Firstname can not be blank")
     private String firstName;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Lastname can not be null")
+    @NotBlank(message = "Lastname can not be blank")
     private String lastName;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Email address can not be null")
+    @NotBlank(message = "Email address can not be blank")
     private String emailAddress;
 
-    private String phoneNumberDTO;
+    private String phoneNumber;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Status can not be null")
+    @NotBlank(message = "Status can not be blank")
     private String status;
 
     private String comment;
 
-    @NotNull
-    @NotBlank
+    @NotNull(message = "Company can not be null")
+    @NotBlank(message = "Company can not be blank")
     private String companyName;
 
     private Date createdDate;

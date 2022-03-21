@@ -15,9 +15,9 @@ public interface IContactService {
 
     void addContact(@Valid Contact contact);
 
-    void updateContact(Contact contact);
+    void updateContact(@Valid Contact contact);
 
     Optional<Contact> findContactByID(Long id);
 
-    public Pageable createNewPageable(Integer page);
+    Pageable createNewPageable(Integer page);
 }

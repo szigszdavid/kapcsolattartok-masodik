@@ -9,9 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ContactRepository extends JpaRepository<Contact, Long> {
 
-
     @Override
-    @Query("select concat(c.firstName, ' ', c.lastName) as fullName,c.company.name, c.emailAddress, c.phoneNumber, c.id from Contact c")
+    @Query(value = "select concat(c.firstName, ' ', c.lastName) as fullName,c.company.name, c.emailAddress, c.phoneNumber, c.id from Contact c where c.status = 'ACTIVE' ")
     Page<Contact> findAll(Pageable p);
 
 

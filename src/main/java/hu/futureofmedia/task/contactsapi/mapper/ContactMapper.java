@@ -16,14 +16,14 @@ public abstract class ContactMapper {
 
     @BeforeMapping
     protected void contactDTOToContactBeforeMapping(ContactDTO dto, @MappingTarget Contact contact) {
-        if (dto.getStatus() == "ACTIVE") {
+        if (dto.getStatus().equals("ACTIVE")) {
             contact.setStatus(Status.ACTIVE);
         }
-        if (dto.getStatus() == "DELETED") {
+        if (dto.getStatus().equals("DELETED")) {
             contact.setStatus(Status.DELETED);
         }
 
-        String contactDTOPhoneNumberString = dto.getPhoneNumberDTO();
+        String contactDTOPhoneNumberString = dto.getPhoneNumber();
         PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
         try {
 
@@ -39,20 +39,11 @@ public abstract class ContactMapper {
                 throw new NumberFormatException("Not a valid phone number");
             }
         } catch (NumberParseException e) {
-            System.err.println("NumberParseException was thrown: " + e.toString());
+            System.err.println("NumberParseException was thrown: " + e);
         }
 
     }
 
-    @BeforeMapping
-    protected void contactToOutputDTOBeforeMapping(Contact contact, @MappingTarget OutputDTO outputDTO)
-    {
-        outputDTO.setFullName(contact.getFirstName() + " " + contact.getLastName());
-    }
-
     public abstract Contact contactDTOToContact(ContactDTO dto);
 
-    public abstract OutputDTO contactToOutputDTO(Contact contact);
-
-    //ContactDTO contactToContactDTO(Contact contact);
 }

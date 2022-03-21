@@ -66,6 +66,38 @@ public class ControllerTest {
     private CompanyRepository companyRepository;
 
     @Test
+    public void blankFirstNameTest() throws Exception
+    {
+        ContactDTO contactDTO = createValidContact(1L);
+        contactDTO.setFirstName("");
+
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(post("/contacts/add")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect(result -> assertEquals("Vezetéknév nem lehet üres", result.getResponse().getContentAsString()))
+                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
+    }
+
+    @Test
+    public void nullFirstNameTest() throws Exception
+    {
+        ContactDTO contactDTO = createValidContact(1L);
+        contactDTO.setFirstName(null);
+
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(post("/contacts/add")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect(result -> assertEquals("Meg kell adni a vezetéknevet", result.getResponse().getContentAsString()))
+                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
+    }
+
+    @Test
     public void invalidEmailAddressTest() throws Exception
     {
         ContactDTO contactDTO = createValidContact(1L);
@@ -86,7 +118,7 @@ public class ControllerTest {
     public void invalidPhoneNumberTest() throws Exception
     {
         ContactDTO contactDTO = createValidContact(1L);
-        contactDTO.setPhoneNumberDTO("1234567");
+        contactDTO.setPhoneNumber("1234567");
 
         String body = objectMapper.writeValueAsString(contactDTO);
 
@@ -193,16 +225,16 @@ public class ControllerTest {
     @Test
     public void getAllContactTest() throws Exception
     {
+        createTestContact("Take1");
         createTestContact("Take2");
-        //createTestContact("Take2");
 
         mvc.perform(
                         get("/contacts").contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 //.andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(2))))
-                .andExpect(jsonPath("$.content.[0].firstName", is("Take1")))
-                .andExpect(jsonPath("$.content.[1].firstName", is("Take2")));
+                .andExpect(jsonPath("$.[0].fullName", is("Take1 LastName")))
+                .andExpect(jsonPath("$.[1].fullName", is("Take2 LastName")));
     }
 
     @Test
@@ -267,7 +299,7 @@ public class ControllerTest {
         contactDTO.setFirstName("FirstName");
         contactDTO.setLastName("LastName");
         contactDTO.setEmailAddress("emailAdress@gmail.com");
-        contactDTO.setPhoneNumberDTO("+36301234567");
+        contactDTO.setPhoneNumber("+36301234567");
         contactDTO.setCompanyName("DTOCompany #1");
         companyRepository.saveAndFlush(new Company(contactDTO.getCompanyName()));
         contactDTO.setStatus("ACTIVE");

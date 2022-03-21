@@ -46,7 +46,51 @@ public class ContactController {
         //return contactService.findAllContacts(page);
         Page<Contact> contacts = contactService.findAllContacts(page);
 
-        List<Contact> list = (List<Contact>) contacts.toList();
+        return listTheSpecificFieldsWithDTO(contacts);
+    }
+
+    @GetMapping("/{id}")
+    public Optional<Contact> findContactById(@PathVariable Long id)
+    {
+        return contactService.findContactByID(id);
+    }
+
+    @PostMapping("/add")
+    public void addContact(@RequestBody ContactDTO contactDTO)
+    {
+        Contact contact = mapper.contactDTOToContact(contactDTO);
+
+        contact.setCompany(companyRepository.findCompanyByName(contactDTO.getCompanyName()));
+        contact.setStatus(Status.ACTIVE);
+
+        contactService.addContact(contact);
+    }
+
+    @PutMapping("/update/{id}")
+    public void updateContact(@RequestBody ContactDTO contactDTO, @PathVariable Long id)
+    {
+        contactDTO.setId(id);
+        Contact contact = mapper.contactDTOToContact(contactDTO);
+
+        contact.setCompany(companyRepository.findCompanyByName(contactDTO.getCompanyName()));
+        contact.setCreatedDate(contactService.findContactByID(id).get().getCreatedDate());
+
+        contactService.updateContact(contact);
+    }
+
+    @PutMapping("/delete/{id}")
+    public void deleteContact(@PathVariable Long id)
+    {
+        Contact contact = contactService.findContactByID(id).orElse(null);
+
+        contact.setStatus(Status.DELETED);
+
+        contactService.updateContact(contact);
+    }
+
+    public List<OutputDTO> listTheSpecificFieldsWithDTO(Page<Contact> contacts)
+    {
+        List<Contact> list = contacts.toList();
         List<OutputDTO> outputDTOS = new ArrayList<>();
 
         Iterator itr = list.iterator();
@@ -65,44 +109,6 @@ public class ContactController {
         }
 
         return outputDTOS;
-    }
-
-    @GetMapping("/{id}")
-    public Optional<Contact> findContactById(@PathVariable Long id)
-    {
-        return contactService.findContactByID(id);
-    }
-
-    @PostMapping("/add")
-    public void addContact(@Valid @RequestBody ContactDTO contactDTO)
-    {
-        Contact contact = mapper.contactDTOToContact(contactDTO);
-
-        contact.setCompany(companyRepository.findCompanyByName(contactDTO.getCompanyName()));
-        contact.setStatus(Status.ACTIVE);
-
-        contactService.addContact(contact);
-    }
-
-    @PutMapping("/update/{id}")
-    public void updateContact(@Valid @RequestBody ContactDTO contactDTO, @PathVariable Long id)
-    {
-        contactDTO.setId(id);
-        Contact contact = mapper.contactDTOToContact(contactDTO);
-
-        contact.setCompany(companyRepository.findCompanyByName(contactDTO.getCompanyName()));
-
-        contactService.updateContact(contact);
-    }
-
-    @PutMapping("/delete/{id}")
-    public void deleteContact(@Valid @PathVariable Long id)
-    {
-        Contact contact = contactService.findContactByID(id).orElse(null);
-
-        contact.setStatus(Status.DELETED);
-
-        contactService.updateContact(contact);
     }
 
 
