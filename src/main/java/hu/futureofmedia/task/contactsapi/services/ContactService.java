@@ -35,7 +35,7 @@ public class ContactService implements IContactService {
 
 
     @Override
-    public void updateContact(Contact contact) {
+    public void updateContact(@Valid Contact contact) {
         contactRepository.save(contact);
     }
 

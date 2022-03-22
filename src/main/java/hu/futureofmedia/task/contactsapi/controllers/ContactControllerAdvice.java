@@ -14,7 +14,7 @@ import javax.validation.ConstraintViolationException;
 public class ContactControllerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = { ConstraintViolationException.class, ConstraintViolationException.class })
-    protected ResponseEntity<Object> handleEmailConflictException(
+    protected ResponseEntity<Object> handleConstraintViolationException(
             RuntimeException ex, WebRequest request) {
 
         String bodyOfResponse;
