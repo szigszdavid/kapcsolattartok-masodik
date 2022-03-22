@@ -3,7 +3,6 @@ package hu.futureofmedia.task.contactsapi.entities;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -30,30 +29,29 @@ public class Contact {
     private String firstName;
 
     @Column
-    @NotNull(message = "Lastname can not be null")
-    @NotBlank(message = "Lastname can not be blank")
+    @NotNull(message = "Keresztnév megadása kötelező")
+    @NotBlank(message = "Keresztnév nem lehet üres")
     private String lastName;
 
     @Column
     @Email
-    @NotNull(message = "Email address can not be null")
-    @NotBlank(message = "Email address can not be blank")
+    @NotNull(message = "E-mail cím megadása kötelező")
+    @NotBlank(message = "E-mail cím nem lehet üres")
     private String emailAddress;
 
     @Column
-    @NotBlank(message = "Phone number can not be blank")
     private String phoneNumber;
 
     @OneToOne
     @JoinColumn(name = "company_id")
-    @NotNull(message = "Company can not be null")
+    @NotNull(message = "A cég kiváalsztása kötelező")
     private Company company;
 
     @Column
     private String comment;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Status can not be null")
+    @NotNull(message = "Nem létező státusz lett beállítva, válasszon egyet a következőek közül: ACTIVE, DELETED")
     private Status status;
 
     @CreatedDate

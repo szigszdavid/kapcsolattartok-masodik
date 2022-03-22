@@ -7,22 +7,16 @@ import hu.futureofmedia.task.contactsapi.entities.Status;
 import hu.futureofmedia.task.contactsapi.mapper.ContactMapper;
 import hu.futureofmedia.task.contactsapi.repositories.CompanyRepository;
 import hu.futureofmedia.task.contactsapi.services.IContactService;
-import org.hibernate.validator.constraints.CodePointLength;
 import org.mapstruct.factory.Mappers;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.function.Function;
 
-import javax.validation.Valid;
 import java.util.Optional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @Validated
@@ -43,7 +37,6 @@ public class ContactController {
     @GetMapping
     public List<OutputDTO> findAllContacts(@RequestParam(name = "page", required = false) Integer page)
     {
-        //return contactService.findAllContacts(page);
         Page<Contact> contacts = contactService.findAllContacts(page);
 
         return listTheSpecificFieldsWithDTO(contacts);

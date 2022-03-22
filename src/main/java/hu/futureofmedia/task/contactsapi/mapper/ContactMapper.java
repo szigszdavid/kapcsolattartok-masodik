@@ -1,15 +1,12 @@
 package hu.futureofmedia.task.contactsapi.mapper;
 
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
-import hu.futureofmedia.task.contactsapi.dtos.OutputDTO;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
 import org.mapstruct.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
-import org.springframework.data.domain.Page;
 
 @Mapper
 public abstract class ContactMapper {

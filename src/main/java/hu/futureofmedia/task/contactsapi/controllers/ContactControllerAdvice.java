@@ -31,28 +31,28 @@ public class ContactControllerAdvice extends ResponseEntityExceptionHandler {
         {
             bodyOfResponse = "Vezetéknév nem lehet üres";
         }
-        else if(ex.getMessage().contains("Lastname can not be null"))
+        else if(ex.getMessage().contains("Keresztnév megadása kötelező"))
         {
             bodyOfResponse = "Meg kell adni a keresztnevet";
         }
-        else if(ex.getMessage().contains("Lastname can not be blank"))
+        else if(ex.getMessage().contains("Keresztnév nem lehet üres"))
         {
             bodyOfResponse = "Keresztnév nem lehet üres";
         }
-        else if(ex.getMessage().contains("emailAddress can not be null"))
+        else if(ex.getMessage().contains("E-mail cím megadása kötelező"))
         {
-            bodyOfResponse = "Meg kell adni az e-mail címet";
+            bodyOfResponse = "E-mail cím megadása kötelező";
         }
-        else if(ex.getMessage().contains("emailAddress can not be blank"))
+        else if(ex.getMessage().contains("E-mail cím nem lehet üres"))
         {
             bodyOfResponse = "E-mail cím nem lehet üres";
         }
 
-        else if(ex.getMessage().contains("Company can not be null"))
+        else if(ex.getMessage().contains("A cég kiváalsztása kötelező"))
         {
-            bodyOfResponse = "Meg kell adni a cég nevét";
+            bodyOfResponse = "A cég kiváalsztása kötelező";
         }
-        else if(ex.getMessage().contains("company can not be blank"))
+        else if(ex.getMessage().contains("Válasszon a kiválasztható cégek közül"))
         {
             bodyOfResponse = "Válasszon a kiválasztható cégek közül";
         }
@@ -74,9 +74,17 @@ public class ContactControllerAdvice extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = { IllegalArgumentException.class, IllegalArgumentException.class })
-    protected ResponseEntity<Object> handleStatusException(
+    protected ResponseEntity<Object> handleStatusInvalidException(
             RuntimeException ex, WebRequest request) {
         String bodyOfResponse = "Nem létező státusz lett beállítva, válasszon egyet a következőek közül: ACTIVE, DELETED";
+        return handleExceptionInternal(ex, bodyOfResponse,
+                new HttpHeaders(), HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler(value = { NullPointerException.class, NullPointerException.class })
+    protected ResponseEntity<Object> handleStatusNullException(
+            RuntimeException ex, WebRequest request) {
+        String bodyOfResponse = "Ki kell választani egy státuszt";
         return handleExceptionInternal(ex, bodyOfResponse,
                 new HttpHeaders(), HttpStatus.CONFLICT, request);
     }

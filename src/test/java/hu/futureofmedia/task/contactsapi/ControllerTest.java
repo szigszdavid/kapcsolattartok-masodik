@@ -1,51 +1,29 @@
 package hu.futureofmedia.task.contactsapi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hu.futureofmedia.task.contactsapi.controllers.ContactController;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.entities.Company;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
 import hu.futureofmedia.task.contactsapi.repositories.CompanyRepository;
 import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
-import hu.futureofmedia.task.contactsapi.services.IContactService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.json.JacksonTester;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 
 import javax.validation.ConstraintViolationException;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -142,7 +120,7 @@ public class ControllerTest {
                         .contentType("application/json")
                         .content(body))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
-                .andExpect(result -> assertEquals("Meg kell adni a cég nevét", result.getResponse().getContentAsString()))
+                .andExpect(result -> assertEquals("A cég kiváalsztása kötelező", result.getResponse().getContentAsString()))
                 .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
     }
 
@@ -173,7 +151,7 @@ public class ControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        String actualResponseBody = mvc.perform(get("/contacts/1")
+        mvc.perform(get("/contacts/1")
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -198,7 +176,7 @@ public class ControllerTest {
                         .content(body))
                 .andExpect(status().isOk());
 
-        String actualResponseBody = mvc.perform(get("/contacts/1")
+        mvc.perform(get("/contacts/1")
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -219,7 +197,6 @@ public class ControllerTest {
                         get("/contacts").contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                //.andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(2))))
                 .andExpect(jsonPath("$.[0].fullName", is("Take1 LastName")))
                 .andExpect(jsonPath("$.[1].fullName", is("Take2 LastName")));
     }
@@ -239,7 +216,6 @@ public class ControllerTest {
 
     @Test
     void findContactByFakeIdTest() throws Exception {
-        ContactDTO contactDTO = createValidContact(2L);
 
         MvcResult mvcResult = mvc.perform(get("/contacts/{id}",2)
                         .contentType("application/json"))
