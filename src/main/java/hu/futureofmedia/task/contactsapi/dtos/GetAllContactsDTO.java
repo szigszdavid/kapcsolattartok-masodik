@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OutputDTO {
+public class GetAllContactsDTO {
 
     private Long id;
 

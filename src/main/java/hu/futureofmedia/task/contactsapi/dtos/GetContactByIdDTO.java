@@ -7,39 +7,36 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContactDTO {
+public class GetContactByIdDTO {
 
     private Long id;
 
-    @NotBlank(message = "ContactDTO.firstName.Required")
     private String firstName;
 
-    @NotBlank(message = "ContactDTO.lastName.Required")
     private String lastName;
 
-    @NotBlank(message = "ContactDTO.emailAddress.Required")
     private String emailAddress;
 
-    @PhoneNumberValidation
     private String phoneNumber;
 
-    @NotBlank(message = "ContactDTO.status.Required")
     private String status;
 
     private String comment;
 
-    @NotNull(message = "ContactDTO.company.Required")
-    @CompanyExistsValidation
     private Company company;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private ZonedDateTime createdDate;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private ZonedDateTime lastModifiedDate;
 
 }

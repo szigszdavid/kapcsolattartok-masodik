@@ -1,8 +1,10 @@
 package hu.futureofmedia.task.contactsapi.services;
 
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
-import hu.futureofmedia.task.contactsapi.dtos.OutputDTO;
+import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsDTO;
+import hu.futureofmedia.task.contactsapi.dtos.GetContactByIdDTO;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
+import hu.futureofmedia.task.contactsapi.exceptions.ContactNotFoundExcpetion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
@@ -11,15 +13,17 @@ import java.util.Optional;
 
 public interface ContactService { //Átnevezni simán ContactService
 
-    List<OutputDTO> findAllContacts(Integer page);
+    List<GetAllContactsDTO> findAllContacts(Integer page);
 
     void addContact( ContactDTO contactDTO);
 
-    void updateContact( ContactDTO contactDTO, Long id);
+    void updateContact( ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion;
 
-    ContactDTO findContactByID(Long id);
+    GetContactByIdDTO findContactByID(Long id) throws ContactNotFoundExcpetion;
 
-    void deleteContact(Long id);
+    Contact findById(Long id) throws ContactNotFoundExcpetion;
+
+    void deleteContact(Long id) throws ContactNotFoundExcpetion;
 
     Pageable createNewPageable(Integer page);
 }

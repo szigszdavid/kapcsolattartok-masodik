@@ -16,6 +16,6 @@ public class CompanyExistsValidator implements ConstraintValidator<CompanyExists
     public boolean isValid(Company value, ConstraintValidatorContext context) {
         Company company = companyService.findById(value.getId());
 
-        return company != null && company.getName() == value.getName();
+        return company != null && company.getName().equals(value.getName());
     }
 }

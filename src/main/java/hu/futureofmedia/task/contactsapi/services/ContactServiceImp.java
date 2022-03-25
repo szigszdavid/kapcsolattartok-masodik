@@ -1,9 +1,11 @@
 package hu.futureofmedia.task.contactsapi.services;
 
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
-import hu.futureofmedia.task.contactsapi.dtos.OutputDTO;
+import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsDTO;
+import hu.futureofmedia.task.contactsapi.dtos.GetContactByIdDTO;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
+import hu.futureofmedia.task.contactsapi.exceptions.ContactNotFoundExcpetion;
 import hu.futureofmedia.task.contactsapi.mapper.ContactMapper;
 import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.PrePersist;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -23,12 +25,13 @@ public class ContactServiceImp implements ContactService {
     private final ContactMapper mapper;
 
     @Override
-    public List<OutputDTO> findAllContacts(Integer page)
+    public List<GetAllContactsDTO> findAllContacts(Integer page)
     {
-        return contactRepository.findByStatus(Status.ACTIVE, createNewPageable(page)).map(mapper::contactToOutputDTO).toList();
+        return contactRepository.findByStatus(Status.ACTIVE, createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
     }
 
     @Override
+    @PrePersist
     public void addContact(ContactDTO contactDTO) {
 
         Contact contact = mapper.contactDTOToContact(contactDTO);
@@ -37,37 +40,45 @@ public class ContactServiceImp implements ContactService {
     }
 
     @Override
-    public void updateContact(ContactDTO contactDTO, Long id) {
-
+    public void updateContact(ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion {
+        // findById
+        // merge contact, dto
+        // save contact
+        // return map(contact)
         contactDTO.setId(id);
-        ContactDTO findByIdDTO = findContactByID(id);
-        findByIdDTO = mapper.contactDTOToContactDTO(contactDTO);
-        Contact contact = mapper.contactDTOToContact(findByIdDTO);
+        Contact contact = findById(id);
+        mapper.updateContactWithMapper(contactDTO, contact);
 
-        mapper.updateContactWithMapper(findByIdDTO, contact);
         contactRepository.save(contact);
     }
 
-    public void deleteContact(Long id)
+    @Override
+    public void deleteContact(Long id) throws ContactNotFoundExcpetion
     {
-        ContactDTO contactDTO = findContactByID(id);
+        Contact contact = findById(id);
 
-        contactDTO.setStatus("DELETED");
+        contact.setStatus(Status.DELETED);
 
-        contactRepository.save(mapper.contactDTOToContact(contactDTO));
+        contactRepository.save(contact);
     }
 
     @Override
-    public ContactDTO findContactByID(Long id) {
+    public GetContactByIdDTO findContactByID(Long id) throws ContactNotFoundExcpetion {
 
-        Contact contact = contactRepository.findById(id).orElse(null);
+        Contact contact = findById(id);
 
-        return mapper.contactToContactDTO(contact);
+        return mapper.contactToGetContactByDTO(contact);
     }
 
     @Override
     public Pageable createNewPageable(Integer page)
     {
         return PageRequest.of(page == null ? 0 : page,10, Sort.by("firstName").and(Sort.by("lastName")));
+    }
+
+    @Override
+    public Contact findById(Long id) throws ContactNotFoundExcpetion
+    {
+        return contactRepository.findById(id).orElseThrow(() -> new ContactNotFoundExcpetion("Contact not found"));
     }
 }
