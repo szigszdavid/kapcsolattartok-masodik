@@ -1,52 +1,25 @@
 package hu.futureofmedia.task.contactsapi.services;
 
+import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
+import hu.futureofmedia.task.contactsapi.dtos.OutputDTO;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
-import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
+import java.util.List;
 
-import javax.validation.Valid;
 import java.util.Optional;
 
-@Service
-@Validated
-public class ContactService implements IContactService {
+public interface ContactService { //Átnevezni simán ContactService
 
-    ContactRepository contactRepository;
+    List<OutputDTO> findAllContacts(Integer page);
 
-    public ContactService(ContactRepository contactRepository) {
-        this.contactRepository = contactRepository;
-    }
+    void addContact( ContactDTO contactDTO);
 
-    @Override
-    public Page<Contact> findAllContacts(Integer page)
-    {
-        return contactRepository.findAll(createNewPageable(page));
-    }
+    void updateContact( ContactDTO contactDTO, Long id);
 
-    @Override
-    public void addContact(@Valid Contact contact) {
-        contactRepository.save(contact);
-    }
+    ContactDTO findContactByID(Long id);
 
+    void deleteContact(Long id);
 
-    @Override
-    public void updateContact(@Valid Contact contact) {
-        contactRepository.save(contact);
-    }
-
-    @Override
-    public Optional<Contact> findContactByID(Long id) {
-        return contactRepository.findById(id);
-    }
-
-    @Override
-    public Pageable createNewPageable(Integer page)
-    {
-        return PageRequest.of(page == null ? 0 : page,10, Sort.by("firstName").and(Sort.by("lastName")));
-    }
+    Pageable createNewPageable(Integer page);
 }

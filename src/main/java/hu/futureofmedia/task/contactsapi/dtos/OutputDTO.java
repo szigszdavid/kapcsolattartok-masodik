@@ -1,5 +1,6 @@
 package hu.futureofmedia.task.contactsapi.dtos;
 
+import hu.futureofmedia.task.contactsapi.entities.Company;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class OutputDTO {
 
     private String phoneNumber;
 
-    private String companyName;
+    private Company company;
 
     private String fullName;
 }
