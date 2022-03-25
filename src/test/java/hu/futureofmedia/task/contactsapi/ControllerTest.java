@@ -32,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class ControllerTest {
 
+    /*
     //Lehetne tesztelni a mappert is
     @Autowired
     private MockMvc mvc;
@@ -275,4 +276,6 @@ public class ControllerTest {
 
         contactRepository.saveAndFlush(contact);
     }
+
+     */
 }

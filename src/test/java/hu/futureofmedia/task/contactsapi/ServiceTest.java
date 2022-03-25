@@ -1,15 +1,20 @@
 package hu.futureofmedia.task.contactsapi;
 
 import hu.futureofmedia.task.contactsapi.controllers.ContactController;
+import hu.futureofmedia.task.contactsapi.dtos.CompanyDTO;
+import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.entities.Company;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
 import hu.futureofmedia.task.contactsapi.repositories.CompanyRepository;
+import hu.futureofmedia.task.contactsapi.services.CompanyService;
 import hu.futureofmedia.task.contactsapi.services.ContactService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.transaction.TransactionSystemException;
 
 import javax.validation.ConstraintViolationException;
@@ -24,11 +29,33 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class ServiceTest {
 
     @Autowired
-    private ContactService service;
+    private ContactService contactService;
+
+    @Autowired
+    private CompanyService companyService;
 
     @Autowired
     private CompanyRepository companyRepository;
 
+
+    public void initCompanies()
+    {
+        CompanyDTO companyDTO1 = createValidCompany("Company #1");
+        CompanyDTO companyDTO2 = createValidCompany("Company #2");
+        CompanyDTO companyDTO3 = createValidCompany("Company #3");
+
+        companyService.addCompany(companyDTO1);
+        companyService.addCompany(companyDTO2);
+        companyService.addCompany(companyDTO3);
+    }
+
+    @Test
+    public void test()
+    {
+        assertEquals(3, companyService.findAll().size());
+    }
+
+    /*
     @Test
     void updateExistingContactTest()
     {
@@ -134,20 +161,29 @@ public class ServiceTest {
         return contact;
     }
 
-    private Contact createValidContact() {
+    private ContactDTO createValidContact() {
 
-        Contact contact = new Contact();
+        ContactDTO contactDTO = new ContactDTO();
 
-        contact.setId(1L);
-        contact.setFirstName("FirstName");
-        contact.setLastName("LastName");
-        contact.setEmailAddress("emailAdress@gmail.com");
+        contactDTO.setId(1L);
+        contactDTO.setFirstName("FirstName");
+        contactDTO.setLastName("LastName");
+        contactDTO.setEmailAddress("emailAdress@gmail.com");
         companyRepository.save(new Company("Company #1"));
-        contact.setPhoneNumber("+36301234567");
-        contact.setCompany(companyRepository.findCompanyByName("Company #1"));
-        contact.setStatus(Status.ACTIVE);
+        contactDTO.setPhoneNumber("+36301234567");
+        contactDTO.setCompany(companyRepository.findCompanyByName("Company #1"));
+        contactDTO.setStatus("ACTIVE");
 
-        return contact;
+        return contactDTO;
+    }
+
+     */
+
+    private CompanyDTO createValidCompany(String name)
+    {
+        CompanyDTO companyDTO = new CompanyDTO(name);
+
+        return companyDTO;
     }
 
 }
