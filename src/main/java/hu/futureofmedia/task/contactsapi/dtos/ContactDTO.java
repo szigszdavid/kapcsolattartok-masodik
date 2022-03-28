@@ -2,12 +2,16 @@ package hu.futureofmedia.task.contactsapi.dtos;
 
 import hu.futureofmedia.task.contactsapi.annotations.CompanyExistsValidation;
 import hu.futureofmedia.task.contactsapi.annotations.PhoneNumberValidation;
+import hu.futureofmedia.task.contactsapi.annotations.StatusExistsValidation;
 import hu.futureofmedia.task.contactsapi.entities.Company;
+import hu.futureofmedia.task.contactsapi.entities.Status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Enumerated;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.ZonedDateTime;
@@ -28,11 +32,13 @@ public class ContactDTO {
     private String lastName;
 
     @NotBlank(message = "ContactDTO.emailAddress.Required")
+    @Email(message = "ContactDTO.emailAddress.Email format required")
     private String emailAddress;
 
     @PhoneNumberValidation
     private String phoneNumber;
 
+    @StatusExistsValidation
     @NotBlank(message = "ContactDTO.status.Required")
     private String status;
 

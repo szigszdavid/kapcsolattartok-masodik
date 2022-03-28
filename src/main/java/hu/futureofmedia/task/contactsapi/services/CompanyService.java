@@ -12,4 +12,6 @@ public interface CompanyService {
     void addCompany(CompanyDTO dto);
 
     List<Company> findAll();
+
+    void deleteAll();
 }

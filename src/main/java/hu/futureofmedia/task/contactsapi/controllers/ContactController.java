@@ -32,14 +32,14 @@ public class ContactController {
     }
 
     @PostMapping
-    public void addContact(@Valid @RequestBody ContactDTO contactDTO)
+    public ContactDTO addContact(@Valid @RequestBody ContactDTO contactDTO)
     {
-        contactService.addContact(contactDTO);
+        return contactService.addContact(contactDTO);
     }
 
     @PutMapping("/{id}")
-    public void updateContact(@RequestBody ContactDTO contactDTO, @PathVariable Long id) throws ContactNotFoundExcpetion {
-        System.out.println(ZonedDateTime.now());
+    public void updateContact(@Valid @RequestBody ContactDTO contactDTO, @PathVariable Long id) throws ContactNotFoundExcpetion {
+
         contactService.updateContact(contactDTO, id);
     }
 

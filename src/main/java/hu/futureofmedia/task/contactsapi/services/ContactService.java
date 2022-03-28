@@ -15,7 +15,7 @@ public interface ContactService { //Átnevezni simán ContactService
 
     List<GetAllContactsDTO> findAllContacts(Integer page);
 
-    void addContact( ContactDTO contactDTO);
+    ContactDTO addContact( ContactDTO contactDTO);
 
     void updateContact( ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion;
 

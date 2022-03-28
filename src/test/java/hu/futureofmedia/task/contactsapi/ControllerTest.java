@@ -1,12 +1,16 @@
 package hu.futureofmedia.task.contactsapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hu.futureofmedia.task.contactsapi.dtos.CompanyDTO;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.entities.Company;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
 import hu.futureofmedia.task.contactsapi.repositories.CompanyRepository;
 import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
+import hu.futureofmedia.task.contactsapi.services.CompanyService;
+import hu.futureofmedia.task.contactsapi.services.ContactService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class ControllerTest {
 
-    /*
+
     //Lehetne tesztelni a mappert is
     @Autowired
     private MockMvc mvc;
@@ -41,10 +45,17 @@ public class ControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ContactRepository contactRepository;
+    private CompanyService companyService;
 
     @Autowired
-    private CompanyRepository companyRepository;
+    private ContactService contactService;
+
+    @BeforeEach
+    public void onSetUp()
+    {
+        companyService.addCompany(new CompanyDTO(1L, "Company #1"));
+
+    }
 
     @Test
     public void blankFirstNameTest() throws Exception
@@ -54,28 +65,14 @@ public class ControllerTest {
 
         String body = objectMapper.writeValueAsString(contactDTO);
 
-        mvc.perform(post("/contacts/add")
+        MvcResult result = mvc.perform(post("/contacts")
                         .contentType("application/json")
                         .content(body))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
-                .andExpect(result -> assertEquals("Vezetéknév nem lehet üres", result.getResponse().getContentAsString()))
-                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
-    }
+                        .andExpect(status().isBadRequest())
+                        .andReturn();
 
-    @Test
-    public void nullFirstNameTest() throws Exception
-    {
-        ContactDTO contactDTO = createValidContact(1L);
-        contactDTO.setFirstName(null);
-
-        String body = objectMapper.writeValueAsString(contactDTO);
-
-        mvc.perform(post("/contacts/add")
-                        .contentType("application/json")
-                        .content(body))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
-                .andExpect(result -> assertEquals("Vezetéknév megadása kötelező", result.getResponse().getContentAsString()))
-                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
+        String content = result.getResponse().getContentAsString();
+        assertTrue(content.contains("ContactDTO.firstName.Required"));
     }
 
     @Test
@@ -86,12 +83,14 @@ public class ControllerTest {
 
         String body = objectMapper.writeValueAsString(contactDTO);
 
-        mvc.perform(post("/contacts/add")
+        MvcResult result = mvc.perform(post("/contacts")
                         .contentType("application/json")
                         .content(body))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
-                .andExpect(result -> assertEquals("Helyes formátumú e-mail címnek kell lennie", result.getResponse().getContentAsString()))
-                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
+                        .andExpect(status().isBadRequest())
+                        .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        assertTrue(content.contains("ContactDTO.emailAddress.Email format required"));
 
     }
 
@@ -103,29 +102,35 @@ public class ControllerTest {
 
         String body = objectMapper.writeValueAsString(contactDTO);
 
-        mvc.perform(post("/contacts/add")
+        MvcResult result = mvc.perform(post("/contacts")
                         .contentType("application/json")
                         .content(body))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NumberFormatException))
-                .andExpect(result -> assertEquals("A telefonszámnak helyes formátumúnak kell lennie", result.getResponse().getContentAsString()))
-                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
+                        .andExpect(status().isBadRequest())
+                        .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        assertTrue(content.contains("Contact.PhoneNumber wrong format"));
+
     }
 
     @Test
     public void invalidCompanyTest() throws Exception
     {
         ContactDTO contactDTO = createValidContact(1L);
-        contactDTO.setCompanyName("Company #4");
+        contactDTO.setCompany(new Company(4L,"Company #4"));
 
         String body = objectMapper.writeValueAsString(contactDTO);
 
-        mvc.perform(post("/contacts/add")
+        MvcResult result = mvc.perform(post("/contacts")
                         .contentType("application/json")
                         .content(body))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
-                .andExpect(result -> assertEquals("A cég kiváalsztása kötelező", result.getResponse().getContentAsString()))
-                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
+                        .andExpect(status().isBadRequest())
+                        .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        assertTrue(content.contains("Contact.Company does not exists"));
     }
+
 
     @Test
     public void invalidStatusTest() throws Exception
@@ -135,21 +140,22 @@ public class ControllerTest {
 
         String body = objectMapper.writeValueAsString(contactDTO);
 
-        mvc.perform(post("/contacts/add")
+        MvcResult result = mvc.perform(post("/contacts")
                         .contentType("application/json")
                         .content(body))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals("Nem létező státusz lett beállítva, válasszon egyet a következőek közül: ACTIVE, DELETED", result.getResponse().getContentAsString()))
-                .andExpect(result -> assertEquals(409, result.getResponse().getStatus()));
-    }
+                        .andExpect(status().isBadRequest())
+                        .andReturn();
 
+        String content = result.getResponse().getContentAsString();
+        assertTrue(content.contains("Contact.Status does not exists"));
+    }
 
     @Test
     public void deleteContactTest() throws Exception
     {
-        createTestContact("Take4");
+        ContactDTO contactDTO = createValidContact(1L);
 
-        mvc.perform(put("/contacts/delete/1")
+        mvc.perform(delete("/contacts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -160,20 +166,19 @@ public class ControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.status", is("DELETED")))
-                .andReturn().getResponse().getContentAsString();
+                .andExpect(jsonPath("$.status", is("DELETED")));
     }
 
     @Test
     public void updateContactTest() throws Exception {
 
-        createTestContact("Take3");
-
         ContactDTO contactDTO = createValidContact(1L);
 
-        String body = objectMapper.writeValueAsString(contactDTO);
+        ContactDTO updateContactDTO = createUpdateContact(1L);
 
-        mvc.perform(put("/contacts/update/1")
+        String body = objectMapper.writeValueAsString(updateContactDTO);
+
+        mvc.perform(put("/contacts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -185,7 +190,7 @@ public class ControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.firstName", is("FirstName")))
+                .andExpect(jsonPath("$.lastName", is("Tamás")))
                 .andReturn().getResponse().getContentAsString();
 
     }
@@ -193,20 +198,20 @@ public class ControllerTest {
     @Test
     public void getAllContactTest() throws Exception
     {
-        createTestContact("Take1");
-        createTestContact("Take2");
+        ContactDTO contactDTOFirst = createValidContact(1L);
+        ContactDTO contactDTOSecond = createValidContact(2L);
 
         mvc.perform(
                         get("/contacts").contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[0].fullName", is("Take1 LastName")))
-                .andExpect(jsonPath("$.[1].fullName", is("Take2 LastName")));
+                .andExpect(jsonPath("$.[0].fullName", is(contactDTOFirst.getFirstName() + " " + contactDTOFirst.getLastName())))
+                .andExpect(jsonPath("$.[1].fullName", is(contactDTOSecond.getFirstName() + " " + contactDTOSecond.getLastName())));
     }
 
     @Test
     void findContactByRealIdTest() throws Exception {
-        createTestContact("Take1");
+        ContactDTO contactDTO = createValidContact(1L);
 
         mvc.perform(get("/contacts/1")
                         .contentType("application/json"))
@@ -220,16 +225,11 @@ public class ControllerTest {
     @Test
     void findContactByFakeIdTest() throws Exception {
 
-        MvcResult mvcResult = mvc.perform(get("/contacts/{id}",2)
+        mvc.perform(get("/contacts/{id}",3)
                         .contentType("application/json"))
-                        .andExpect(status().isOk())
-                        .andDo(print())
-                        .andReturn();
+                        .andExpect(status().isBadRequest())
+                        .andDo(print());
 
-        String actualResponseBody = mvcResult.getResponse().getContentAsString();
-
-        assertThat(actualResponseBody).isEqualToIgnoringWhitespace(
-                objectMapper.writeValueAsString(null));
     }
 
     @Test
@@ -238,10 +238,10 @@ public class ControllerTest {
         ContactDTO contactDTO = createValidContact(1L);
         String body = objectMapper.writeValueAsString(contactDTO);
 
-        mvc.perform(post("/contacts/add")
+        mvc.perform(post("/contacts")
                         .contentType("application/json")
                         .content(body))
-                .andExpect(status().isOk());
+                .andExpect(jsonPath("$.firstName", is("FirstName")));
 
     }
 
@@ -255,27 +255,28 @@ public class ControllerTest {
         contactDTO.setLastName("LastName");
         contactDTO.setEmailAddress("emailAdress@gmail.com");
         contactDTO.setPhoneNumber("+36301234567");
-        contactDTO.setCompanyName("DTOCompany #1");
-        companyRepository.saveAndFlush(new Company(contactDTO.getCompanyName()));
+        contactDTO.setCompany(companyService.findById(1L));
+        contactDTO.setStatus("ACTIVE");
+
+        contactService.addContact(contactDTO);
+
+        return contactDTO;
+    }
+
+    private ContactDTO createUpdateContact(Long id)
+    {
+        ContactDTO contactDTO = new ContactDTO();
+
+        contactDTO.setId(id);
+        contactDTO.setFirstName("FirstName");
+        contactDTO.setLastName("Tamás");
+        contactDTO.setEmailAddress("emailAdress@gmail.com");
+        contactDTO.setPhoneNumber("+36301234567");
+        contactDTO.setCompany(companyService.findById(1L));
         contactDTO.setStatus("ACTIVE");
 
         return contactDTO;
     }
 
-    private void createTestContact(String firstName)
-    {
-        Contact contact = new Contact();
 
-        contact.setFirstName(firstName);
-        contact.setLastName("LastName");
-        contact.setEmailAddress("emailAdress@gmail.com");
-        contact.setPhoneNumber("+36301234567");
-        companyRepository.save(new Company(firstName));
-        contact.setCompany(companyRepository.findCompanyByName(firstName));
-        contact.setStatus(Status.ACTIVE);
-
-        contactRepository.saveAndFlush(contact);
-    }
-
-     */
 }

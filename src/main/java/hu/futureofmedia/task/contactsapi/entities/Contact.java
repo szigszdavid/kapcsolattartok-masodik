@@ -35,7 +35,6 @@ public class Contact {
     private String lastName;
 
     @Column
-    @Email
     private String emailAddress;
 
     @Column

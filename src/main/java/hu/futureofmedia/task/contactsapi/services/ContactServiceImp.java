@@ -32,11 +32,13 @@ public class ContactServiceImp implements ContactService {
 
     @Override
     @PrePersist
-    public void addContact(ContactDTO contactDTO) {
+    public ContactDTO addContact(ContactDTO contactDTO) {
 
         Contact contact = mapper.contactDTOToContact(contactDTO);
 
         contactRepository.save(contact);
+
+        return contactDTO;
     }
 
     @Override

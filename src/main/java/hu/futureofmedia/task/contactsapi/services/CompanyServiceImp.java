@@ -33,4 +33,9 @@ public class CompanyServiceImp  implements CompanyService{
     public List<Company> findAll() {
         return companyRepository.findAll();
     }
+
+    @Override
+    public void deleteAll() {
+        companyRepository.deleteAll();
+    }
 }
