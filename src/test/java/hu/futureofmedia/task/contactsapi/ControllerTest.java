@@ -131,25 +131,6 @@ public class ControllerTest {
         assertTrue(content.contains("Contact.Company does not exists"));
     }
 
-
-    @Test
-    public void invalidStatusTest() throws Exception
-    {
-        ContactDTO contactDTO = createValidContact(1L);
-        contactDTO.setStatus("NEW");
-
-        String body = objectMapper.writeValueAsString(contactDTO);
-
-        MvcResult result = mvc.perform(post("/contacts")
-                        .contentType("application/json")
-                        .content(body))
-                        .andExpect(status().isBadRequest())
-                        .andReturn();
-
-        String content = result.getResponse().getContentAsString();
-        assertTrue(content.contains("Contact.Status does not exists"));
-    }
-
     @Test
     public void deleteContactTest() throws Exception
     {
@@ -256,7 +237,6 @@ public class ControllerTest {
         contactDTO.setEmailAddress("emailAdress@gmail.com");
         contactDTO.setPhoneNumber("+36301234567");
         contactDTO.setCompany(companyService.findById(1L));
-        contactDTO.setStatus("ACTIVE");
 
         contactService.addContact(contactDTO);
 
@@ -273,7 +253,6 @@ public class ControllerTest {
         contactDTO.setEmailAddress("emailAdress@gmail.com");
         contactDTO.setPhoneNumber("+36301234567");
         contactDTO.setCompany(companyService.findById(1L));
-        contactDTO.setStatus("ACTIVE");
 
         return contactDTO;
     }

@@ -1,8 +1,7 @@
 package hu.futureofmedia.task.contactsapi.dtos;
 
-import hu.futureofmedia.task.contactsapi.annotations.CompanyExistsValidation;
-import hu.futureofmedia.task.contactsapi.annotations.PhoneNumberValidation;
 import hu.futureofmedia.task.contactsapi.entities.Company;
+import hu.futureofmedia.task.contactsapi.entities.Status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +26,7 @@ public class GetContactByIdDTO {
 
     private String phoneNumber;
 
-    private String status;
+    private Status status;
 
     private String comment;
 

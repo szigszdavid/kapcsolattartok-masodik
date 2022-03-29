@@ -36,22 +36,23 @@ public class ContactServiceImp implements ContactService {
 
         Contact contact = mapper.contactDTOToContact(contactDTO);
 
+        contact.setStatus(Status.ACTIVE);
+
         contactRepository.save(contact);
 
-        return contactDTO;
+        return mapper.contactToContactDTO(contact);
     }
 
     @Override
-    public void updateContact(ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion {
-        // findById
-        // merge contact, dto
-        // save contact
-        // return map(contact)
+    public ContactDTO updateContact(ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion {
+
         contactDTO.setId(id);
         Contact contact = findById(id);
         mapper.updateContactWithMapper(contactDTO, contact);
 
         contactRepository.save(contact);
+
+        return mapper.contactToContactDTO(contact);
     }
 
     @Override

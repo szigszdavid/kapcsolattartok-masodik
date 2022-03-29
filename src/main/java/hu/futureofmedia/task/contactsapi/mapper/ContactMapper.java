@@ -18,17 +18,11 @@ public interface ContactMapper {
 
     Contact contactDTOToContact(ContactDTO dto);
 
-    ContactDTO contactDTOToContactDTO(ContactDTO dto);
-
     void updateContactWithMapper(ContactDTO dto, @MappingTarget Contact contact);
-
-    void updateContactDTOWithMapper(ContactDTO dto, @MappingTarget GetContactByIdDTO foundDTO);
 
     ContactDTO contactToContactDTO(Contact contact);
 
     GetContactByIdDTO contactToGetContactByDTO(Contact contact);
-
-    Contact getContactByIdDTOToContact(GetContactByIdDTO findByIdDTO);
 
     GetAllContactsDTO contactToGetAllContactsDTO(Contact contact);
 }

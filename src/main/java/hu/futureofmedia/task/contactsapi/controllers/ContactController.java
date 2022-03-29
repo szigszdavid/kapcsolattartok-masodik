@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -38,9 +37,9 @@ public class ContactController {
     }
 
     @PutMapping("/{id}")
-    public void updateContact(@Valid @RequestBody ContactDTO contactDTO, @PathVariable Long id) throws ContactNotFoundExcpetion {
+    public ContactDTO updateContact(@Valid @RequestBody ContactDTO contactDTO, @PathVariable Long id) throws ContactNotFoundExcpetion {
 
-        contactService.updateContact(contactDTO, id);
+        return contactService.updateContact(contactDTO, id);
     }
 
     @DeleteMapping("/{id}")
