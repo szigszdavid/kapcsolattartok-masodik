@@ -4,13 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hu.futureofmedia.task.contactsapi.dtos.CompanyDTO;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.entities.Company;
-import hu.futureofmedia.task.contactsapi.entities.Contact;
-import hu.futureofmedia.task.contactsapi.entities.Status;
-import hu.futureofmedia.task.contactsapi.repositories.CompanyRepository;
-import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 import hu.futureofmedia.task.contactsapi.services.CompanyService;
 import hu.futureofmedia.task.contactsapi.services.ContactService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultMatcher;
 
-
-import javax.validation.ConstraintViolationException;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
