@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ContactRepository extends JpaRepository<Contact, Long> {
 
-
-    Page<Contact> findByStatus(Status status, Pageable pageable); //AfterMapping
-
+    Page<Contact> findByStatus(Status status, Pageable pageable);
 
 }

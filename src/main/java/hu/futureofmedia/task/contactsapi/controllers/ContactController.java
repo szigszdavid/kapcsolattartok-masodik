@@ -31,13 +31,13 @@ public class ContactController {
     }
 
     @PostMapping
-    public ContactDTO addContact(@Valid @RequestBody ContactDTO contactDTO)
+    public Long addContact(@Valid @RequestBody ContactDTO contactDTO)
     {
         return contactService.addContact(contactDTO);
     }
 
     @PutMapping("/{id}")
-    public ContactDTO updateContact(@Valid @RequestBody ContactDTO contactDTO, @PathVariable Long id) throws ContactNotFoundExcpetion {
+    public Long updateContact(@Valid @RequestBody ContactDTO contactDTO, @PathVariable Long id) throws ContactNotFoundExcpetion {
 
         return contactService.updateContact(contactDTO, id);
     }

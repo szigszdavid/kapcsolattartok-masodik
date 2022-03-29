@@ -32,7 +32,7 @@ public class ContactServiceImp implements ContactService {
 
     @Override
     @PrePersist
-    public ContactDTO addContact(ContactDTO contactDTO) {
+    public Long addContact(ContactDTO contactDTO) {
 
         Contact contact = mapper.contactDTOToContact(contactDTO);
 
@@ -40,11 +40,11 @@ public class ContactServiceImp implements ContactService {
 
         contactRepository.save(contact);
 
-        return mapper.contactToContactDTO(contact);
+        return contact.getId();
     }
 
     @Override
-    public ContactDTO updateContact(ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion {
+    public Long updateContact(ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion {
 
         contactDTO.setId(id);
         Contact contact = findById(id);
@@ -52,7 +52,7 @@ public class ContactServiceImp implements ContactService {
 
         contactRepository.save(contact);
 
-        return mapper.contactToContactDTO(contact);
+        return contact.getId();
     }
 
     @Override

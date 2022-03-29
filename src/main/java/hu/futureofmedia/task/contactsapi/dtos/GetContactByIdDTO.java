@@ -32,10 +32,8 @@ public class GetContactByIdDTO {
 
     private Company company;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private ZonedDateTime createdDate;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private ZonedDateTime lastModifiedDate;
 
 }

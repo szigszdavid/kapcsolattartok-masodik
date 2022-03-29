@@ -29,13 +29,4 @@ public class CompanyServiceImp  implements CompanyService{
         companyRepository.save(company);
     }
 
-    @Override
-    public List<Company> findAll() {
-        return companyRepository.findAll();
-    }
-
-    @Override
-    public void deleteAll() {
-        companyRepository.deleteAll();
-    }
 }

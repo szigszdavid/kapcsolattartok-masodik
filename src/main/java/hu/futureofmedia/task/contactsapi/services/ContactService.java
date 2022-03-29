@@ -12,9 +12,9 @@ public interface ContactService {
 
     List<GetAllContactsDTO> findAllContacts(Integer page);
 
-    ContactDTO addContact( ContactDTO contactDTO);
+    Long addContact(ContactDTO contactDTO);
 
-    ContactDTO updateContact(ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion;
+    Long updateContact(ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion;
 
     GetContactByIdDTO findContactByID(Long id) throws ContactNotFoundExcpetion;
 
