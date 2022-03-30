@@ -1,6 +1,7 @@
 package hu.futureofmedia.task.contactsapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hu.futureofmedia.task.contactsapi.apierrors.ApiError;
 import hu.futureofmedia.task.contactsapi.dtos.CompanyDTO;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.entities.Company;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -23,6 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+
+@PropertySource("classpath:application.properties")
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ControllerTest {
@@ -43,6 +47,87 @@ public class ControllerTest {
     public void onSetUp()
     {
         companyService.addCompany(new CompanyDTO(1L, "Company #1"));
+    }
+
+    @Test
+    public void numberOfContactsByPageTest() throws Exception {
+        ContactDTO contactDTOFirst = createValidContact(1L);
+        createValidContact(2L);
+        createValidContact(3L);
+        createValidContact(4L);
+        createValidContact(5L);
+        createValidContact(6L);
+        createValidContact(7L);
+        createValidContact(8L);
+        createValidContact(9L);
+        createValidContact(10L);
+
+        String content = mvc.perform(
+                        get("/contacts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("page","0"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[0].fullName", is(contactDTOFirst.getFirstName() + " " + contactDTOFirst.getLastName())))
+                .andReturn().getResponse().getContentAsString();
+
+        assertEquals(10,content.split("fullName").length - 1);
+
+        ContactDTO contactDTOLast = createValidContact(11L);
+
+        String secondPageContent = mvc.perform(
+                        get("/contacts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("page","1"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[0].fullName", is(contactDTOLast.getFirstName() + " " + contactDTOLast.getLastName())))
+                .andReturn().getResponse().getContentAsString();
+
+        assertEquals(1,secondPageContent.split("fullName").length - 1);
+    }
+
+    @Test
+    public void numberOfContactsByPageAfterDeleteTest() throws Exception {
+        createValidContact(1L);
+        createValidContact(2L);
+        createValidContact(3L);
+        createValidContact(4L);
+        createValidContact(5L);
+        createValidContact(6L);
+        createValidContact(7L);
+        createValidContact(8L);
+        createValidContact(9L);
+        createValidContact(10L);
+        ContactDTO contactDTOLast = createValidContact(11L);
+
+        String secondPageContent = mvc.perform(
+                        get("/contacts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("page","1"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[0].fullName", is(contactDTOLast.getFirstName() + " " + contactDTOLast.getLastName())))
+                .andReturn().getResponse().getContentAsString();
+
+
+        assertEquals(1,secondPageContent.split("fullName").length - 1);
+
+        mvc.perform(delete("/contacts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        secondPageContent = mvc.perform(
+                        get("/contacts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("page","1"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.[0].fullName", is(contactDTOLast.getFirstName() + " " + contactDTOLast.getLastName())))
+                .andReturn().getResponse().getContentAsString();
+
+        assertEquals("", secondPageContent);
 
     }
 
@@ -61,7 +146,9 @@ public class ControllerTest {
                         .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        assertTrue(content.contains("ContactDTO.firstName.Required"));
+        ApiError apiError = objectMapper.readValue(content, ApiError.class);
+        assertEquals("firstName: ContactDTO.firstName.Required", apiError.getErrors().get(0));
+
     }
 
     @Test
@@ -79,8 +166,8 @@ public class ControllerTest {
                         .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        assertTrue(content.contains("ContactDTO.emailAddress.Email format required"));
-
+        ApiError apiError = objectMapper.readValue(content, ApiError.class);
+        assertEquals("emailAddress: ContactDTO.emailAddress.Email format required", apiError.getErrors().get(0));
     }
 
     @Test
@@ -98,7 +185,8 @@ public class ControllerTest {
                         .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        assertTrue(content.contains("Contact.PhoneNumber wrong format"));
+        ApiError apiError = objectMapper.readValue(content, ApiError.class);
+        assertEquals("phoneNumber: Contact.PhoneNumber wrong format",apiError.getErrors().get(0));
 
     }
 
@@ -106,7 +194,7 @@ public class ControllerTest {
     public void invalidCompanyTest() throws Exception
     {
         ContactDTO contactDTO = createValidContact(1L);
-        contactDTO.setCompany(new Company(4L,"Company #4"));
+        contactDTO.setCompanyId(4L);
 
         String body = objectMapper.writeValueAsString(contactDTO);
 
@@ -117,7 +205,8 @@ public class ControllerTest {
                         .andReturn();
 
         String content = result.getResponse().getContentAsString();
-        assertTrue(content.contains("Contact.Company does not exists"));
+        ApiError apiError = objectMapper.readValue(content, ApiError.class);
+        assertEquals("companyId: Contact.Company does not exists", apiError.getErrors().get(0));
     }
 
     @Test
@@ -160,8 +249,7 @@ public class ControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.lastName", is("Tamás")))
-                .andReturn().getResponse().getContentAsString();
+                .andExpect(jsonPath("$.lastName", is("Tamás")));
 
     }
 
@@ -172,7 +260,9 @@ public class ControllerTest {
         ContactDTO contactDTOSecond = createValidContact(2L);
 
         mvc.perform(
-                        get("/contacts").contentType(MediaType.APPLICATION_JSON))
+                        get("/contacts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("page","0"))
                         .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[0].fullName", is(contactDTOFirst.getFirstName() + " " + contactDTOFirst.getLastName())))
@@ -225,7 +315,7 @@ public class ControllerTest {
         contactDTO.setLastName("LastName");
         contactDTO.setEmailAddress("emailAdress@gmail.com");
         contactDTO.setPhoneNumber("+36301234567");
-        contactDTO.setCompany(companyService.findById(1L));
+        contactDTO.setCompanyId(1L);
 
         contactService.addContact(contactDTO);
 
@@ -241,7 +331,7 @@ public class ControllerTest {
         contactDTO.setLastName("Tamás");
         contactDTO.setEmailAddress("emailAdress@gmail.com");
         contactDTO.setPhoneNumber("+36301234567");
-        contactDTO.setCompany(companyService.findById(1L));
+        contactDTO.setCompanyId(1L);
 
         return contactDTO;
     }

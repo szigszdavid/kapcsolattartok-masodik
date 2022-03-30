@@ -15,8 +15,8 @@ create table contact
     comment varchar(200),
     company_id bigint,
     status varchar(200),
-    created_date timestamp ,
-    last_modified_date timestamp ,
+    created_date timestamp with time zone,
+    last_modified_date timestamp with time zone,
     constraint pk_contact primary key (id)
 );
 

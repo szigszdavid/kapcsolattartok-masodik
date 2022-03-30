@@ -37,6 +37,6 @@ public class ContactDTO {
 
     @NotNull(message = "ContactDTO.company.Required")
     @CompanyExistsValidation
-    private Company company;
+    private Long companyId;
 
 }

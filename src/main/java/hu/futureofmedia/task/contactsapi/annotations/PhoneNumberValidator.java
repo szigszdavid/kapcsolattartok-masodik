@@ -19,7 +19,7 @@ public class PhoneNumberValidator implements ConstraintValidator<PhoneNumberVali
             Phonenumber.PhoneNumber contactDTOPhoneNumberProto = phoneUtil.parse(contactDTOPhoneNumberString, "HU");
             boolean isValid = phoneUtil.isValidNumber(contactDTOPhoneNumberProto);
 
-            return isValid && contactDTOPhoneNumberProto.getCountryCode() == 36 && String.valueOf(phoneUtil.format(contactDTOPhoneNumberProto, PhoneNumberUtil.PhoneNumberFormat.E164)).contains("+36") ;
+            return isValid ;
 
         } catch (NumberParseException e) {
             System.err.println("NumberParseException was thrown: " + e);

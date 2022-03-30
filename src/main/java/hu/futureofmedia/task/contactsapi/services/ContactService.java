@@ -3,6 +3,7 @@ package hu.futureofmedia.task.contactsapi.services;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetContactByIdDTO;
+import hu.futureofmedia.task.contactsapi.entities.Company;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.exceptions.ContactNotFoundExcpetion;
 import org.springframework.data.domain.Pageable;
@@ -23,4 +24,5 @@ public interface ContactService {
     void deleteContact(Long id) throws ContactNotFoundExcpetion;
 
     Pageable createNewPageable(Integer page);
+
 }

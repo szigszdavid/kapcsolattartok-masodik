@@ -8,14 +8,14 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 @RequiredArgsConstructor
-public class CompanyExistsValidator implements ConstraintValidator<CompanyExistsValidation, Company>  {
+public class CompanyExistsValidator implements ConstraintValidator<CompanyExistsValidation, Long>  {
 
     private final CompanyService companyService;
 
     @Override
-    public boolean isValid(Company value, ConstraintValidatorContext context) {
-        Company company = companyService.findById(value.getId());
+    public boolean isValid(Long value, ConstraintValidatorContext context) {
+        Company company = companyService.findById(value);
 
-        return company != null && company.getName().equals(value.getName());
+        return company != null;
     }
 }

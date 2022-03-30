@@ -10,17 +10,10 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface ContactMapper {
 
-    @BeforeMapping
-    default void contactDTOToContactBeforeMapping(ContactDTO dto, @MappingTarget Contact contact) {
-
-        contact.setPhoneNumber(dto.getPhoneNumber());
-    }
 
     Contact contactDTOToContact(ContactDTO dto);
 
     void updateContactWithMapper(ContactDTO dto, @MappingTarget Contact contact);
-
-    ContactDTO contactToContactDTO(Contact contact);
 
     GetContactByIdDTO contactToGetContactByDTO(Contact contact);
 

@@ -41,11 +41,9 @@ public class Contact {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Column
+    @Column(columnDefinition = "TIMESTAMP")
     private ZonedDateTime createdDate;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column
     private ZonedDateTime lastModifiedDate;
 

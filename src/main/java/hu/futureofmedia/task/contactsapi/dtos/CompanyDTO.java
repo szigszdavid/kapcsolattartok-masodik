@@ -15,8 +15,4 @@ public class CompanyDTO {
 
     private String name;
 
-    public CompanyDTO(String name)
-    {
-        this.name = name;
-    }
 }

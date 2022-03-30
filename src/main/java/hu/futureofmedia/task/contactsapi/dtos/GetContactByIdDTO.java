@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.ZonedDateTime;
 
@@ -30,7 +29,7 @@ public class GetContactByIdDTO {
 
     private String comment;
 
-    private Company company;
+    private CompanyDTO company;
 
     private ZonedDateTime createdDate;
 
