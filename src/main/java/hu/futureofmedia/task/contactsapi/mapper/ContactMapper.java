@@ -10,7 +10,6 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface ContactMapper {
 
-
     Contact contactDTOToContact(ContactDTO dto);
 
     void updateContactWithMapper(ContactDTO dto, @MappingTarget Contact contact);

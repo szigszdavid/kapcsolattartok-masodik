@@ -2,6 +2,7 @@ package hu.futureofmedia.task.contactsapi.controllers;
 
 import hu.futureofmedia.task.contactsapi.apierrors.ApiError;
 import hu.futureofmedia.task.contactsapi.exceptions.ContactNotFoundExcpetion;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @ControllerAdvice
 public class ContactControllerAdvice extends ResponseEntityExceptionHandler {
 
@@ -32,6 +34,7 @@ public class ContactControllerAdvice extends ResponseEntityExceptionHandler {
 
         ApiError apiError =
                 new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
+        log.warn("Request error:" + errors.get(0));
         return handleExceptionInternal(
                 ex, apiError, headers, apiError.getStatus(), request);
     }
@@ -43,6 +46,7 @@ public class ContactControllerAdvice extends ResponseEntityExceptionHandler {
 
         ApiError apiError =
                 new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+        log.error("ContactNotFoundExcpetion thrown, " + error);
         return new ResponseEntity<Object>(
                 apiError, new HttpHeaders(), apiError.getStatus());
     }

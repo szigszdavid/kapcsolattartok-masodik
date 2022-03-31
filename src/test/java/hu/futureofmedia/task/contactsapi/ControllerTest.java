@@ -124,10 +124,9 @@ public class ControllerTest {
                                 .param("page","1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[0].fullName", is(contactDTOLast.getFirstName() + " " + contactDTOLast.getLastName())))
                 .andReturn().getResponse().getContentAsString();
 
-        assertEquals("", secondPageContent);
+        assertEquals("[]", secondPageContent);
 
     }
 
@@ -285,7 +284,7 @@ public class ControllerTest {
     @Test
     void findContactByFakeIdTest() throws Exception {
 
-        mvc.perform(get("/contacts/{id}",3)
+        mvc.perform(get("/contacts/{id}",300)
                         .contentType("application/json"))
                         .andExpect(status().isBadRequest())
                         .andDo(print());
