@@ -33,6 +33,7 @@ public class Contact {
 
     @ManyToOne
     @JoinColumn(name = "company_id")
+    @ToString.Exclude
     private Company company;
 
     @Column

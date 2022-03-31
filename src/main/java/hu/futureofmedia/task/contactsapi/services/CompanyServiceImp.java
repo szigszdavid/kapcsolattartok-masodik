@@ -23,7 +23,7 @@ public class CompanyServiceImp  implements CompanyService{
 
         Company company = companyRepository.findById(id).orElse(null);
 
-        log.debug("Company with id: " + company.getId() + " and name" + company.getName() + "found");
+        log.debug("Company {} found", company);
 
         return company;
     }
@@ -31,11 +31,11 @@ public class CompanyServiceImp  implements CompanyService{
     @Override
     public void addCompany(CompanyDTO dto) {
 
-        log.info("addCompany in CompanyService called");
+        log.info("addCompany with CompanyDTO: {}", dto);
 
         Company company = mapper.companyDTOToCompany(dto);
 
-        log.debug("Company data from CompanyDTO mapped");
+        log.debug("Company before save: {}", company);
 
         companyRepository.save(company);
 

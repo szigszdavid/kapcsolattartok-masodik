@@ -24,35 +24,35 @@ public class ContactController {
     @GetMapping
     public List<GetAllContactsDTO> findAllContacts(@RequestParam(name = "page", required = false) Integer page)
     {
-        log.info("findAllContacts on page: " + page + "in ContactController called");
+        log.info("findAllContacts on page: {} called", page);
         return contactService.findAllContacts(page);
     }
 
     @GetMapping("/{id}")
     public GetContactByIdDTO findContactById(@PathVariable Long id) throws ContactNotFoundExcpetion
     {
-        log.info("findContactById wih id: " + id + "in ContactController called");
+        log.info("findContactById wih id: {} called", id);
         return contactService.findContactByID(id);
     }
 
     @PostMapping
     public Long addContact(@Valid @RequestBody ContactDTO contactDTO)
     {
-        log.info("addContact in ContactController called");
+        log.info("addContact with ContactDTO: {} called", contactDTO);
         return contactService.addContact(contactDTO);
     }
 
     @PutMapping("/{id}")
     public Long updateContact(@Valid @RequestBody ContactDTO contactDTO, @PathVariable Long id) throws ContactNotFoundExcpetion
     {
-        log.info("updateContact with id: " + id + "in ContactController called");
+        log.info("updateContact with id: {} and ContactDTO: {} called", id, contactDTO);
         return contactService.updateContact(contactDTO, id);
     }
 
     @DeleteMapping("/{id}")
     public void deleteContact(@PathVariable Long id) throws ContactNotFoundExcpetion
     {
-        log.info("deleteContact with id: " + id + "Controller called");
+        log.info("deleteContact with id: {} called", id);
         contactService.deleteContact(id);
     }
 }

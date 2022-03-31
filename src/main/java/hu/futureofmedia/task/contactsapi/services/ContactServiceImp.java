@@ -17,42 +17,48 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.KPropertyPathExtensionsKt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(isolation = Isolation.SERIALIZABLE, readOnly = true)
 public class ContactServiceImp implements ContactService {
 
     private final ContactRepository contactRepository;
     private final CompanyService companyService;
     private final ContactMapper mapper;
 
-    @Value("${number.of.contacts.by.page:10}")
+    @Value("${number.of.contacts.by.page}")
     private Integer numberOfContactsByPage;
 
+    @Transactional
     @Override
     public List<GetAllContactsDTO> findAllContacts(Integer page)
     {
-        log.info("findAllContacts in ContactServiceImp called on page: " + page);
+        log.info("findAllContacts called on page: {}", page);
         return contactRepository.findByStatus(Status.ACTIVE, createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
     }
 
+    @Transactional(readOnly = false)
     @Override
     public Long addContact(ContactDTO contactDTO) {
 
-        log.info("addContact in ContactServiceImp called!");
+        log.info("addContact called with: {} !", contactDTO);
 
         Contact contact = mapper.contactDTOToContact(contactDTO);
 
-        log.debug("Contact created from ContactDTO!");
-
         contact.setStatus(Status.ACTIVE);
 
-        log.debug("Contact status changed to ACTIVE!");
-
         setCompany(contact, contactDTO);
+
+        log.debug("Contact data before save: {}", contact);
 
         contactRepository.save(contact);
 
@@ -61,24 +67,22 @@ public class ContactServiceImp implements ContactService {
         return contact.getId();
     }
 
+    @Transactional(readOnly = false)
     @Override
     public Long updateContact(ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion {
 
-        log.info("addContact in ContactServiceImp called!");
+        log.info("updateContact called with id: {}, and contactDTO: {} ", id, contactDTO);
 
         contactDTO.setId(id);
 
-        log.debug("ContactDTO id is changed to: " + id + " !");
 
         Contact contact = findById(id);
 
-        log.debug("Contact with id: " + id + " found!");
-
         mapper.updateContactWithMapper(contactDTO, contact);
 
-        log.debug("Contact's data is updated with data from ContactDTO!");
-
         setCompany(contact, contactDTO);
+
+        log.debug("Contact before save: {}", contact);
 
         contactRepository.save(contact);
 
@@ -87,6 +91,7 @@ public class ContactServiceImp implements ContactService {
         return contact.getId();
     }
 
+    @Transactional( readOnly = false)
     @Override
     public void deleteContact(Long id) throws ContactNotFoundExcpetion
     {
@@ -94,49 +99,48 @@ public class ContactServiceImp implements ContactService {
 
         Contact contact = findById(id);
 
-        log.debug("Contact with id:" + id + " found!");
-
         contact.setStatus(Status.DELETED);
 
-        log.debug("Contact status changed to DELETED!");
+        log.debug("Contact before save: {}", contact);
 
         contactRepository.save(contact);
 
         log.debug("Contact saved to database!");
     }
 
+    @Transactional
     @Override
     public GetContactByIdDTO findContactByID(Long id) throws ContactNotFoundExcpetion {
 
-        log.info("findContactByID in ContactServiceImp with id: " + id + " called!");
+        log.info("findContactByID with id: {} called!", id);
 
         Contact contact = findById(id);
 
-        log.debug("Contact with id:" + id + " found!");
-
         GetContactByIdDTO getContactByIdDTO = mapper.contactToGetContactByDTO(contact);
 
-        log.debug("Contact mapped to GetContactByIdDTO!");
+        log.debug("GetContactByIdDTO created!");
 
         return getContactByIdDTO;
     }
 
+    @Transactional(propagation = Propagation.NEVER)
     @Override
     public Pageable createNewPageable(Integer page)
     {
-        log.info("createNewPageable in ContactServiceImp called");
+        log.info("createNewPageable called with page: {}", page);
 
         Pageable pageable = PageRequest.of(page == null ? 0 : page,numberOfContactsByPage, Sort.by("firstName").and(Sort.by("lastName")));
 
-        log.debug("Pageable created on page: " + page + " with " + pageable.getPageSize() + " Contact/page");
+        log.debug("Pageable created on page: {} with {} Contact/page", page, pageable.getPageSize());
 
         return pageable;
     }
 
+    @Transactional
     @Override
     public Contact findById(Long id) throws ContactNotFoundExcpetion
     {
-        log.info("findById in ContactServiceImp called");
+        log.info("findById called with id: {}", id);
 
         return contactRepository.findById(id).orElseThrow(() -> new ContactNotFoundExcpetion("Contact not found"));
     }
@@ -144,13 +148,10 @@ public class ContactServiceImp implements ContactService {
 
     private void setCompany(Contact contact, ContactDTO contactDTO) {
 
-        log.info("Finding Company with id: " + contactDTO.getCompanyId() +"to Contact!");
-
         Company company = companyService.findById(contactDTO.getCompanyId());
 
         contact.setCompany(company);
 
-        log.debug("Company setted for Contact!");
     }
 
 }
