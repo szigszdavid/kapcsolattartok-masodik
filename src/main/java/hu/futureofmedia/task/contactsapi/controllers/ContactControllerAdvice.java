@@ -34,7 +34,7 @@ public class ContactControllerAdvice extends ResponseEntityExceptionHandler {
 
         ApiError apiError =
                 new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
-        log.warn("Request error:" + errors.get(0));
+        log.error("Request error:" + errors.get(0));
         return handleExceptionInternal(
                 ex, apiError, headers, apiError.getStatus(), request);
     }

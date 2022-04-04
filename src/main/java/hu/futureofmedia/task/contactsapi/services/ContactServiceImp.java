@@ -28,7 +28,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Transactional(isolation = Isolation.SERIALIZABLE, readOnly = true)
+@Transactional(isolation = Isolation.SERIALIZABLE, readOnly = true, propagation = Propagation.REQUIRED)
 public class ContactServiceImp implements ContactService {
 
     private final ContactRepository contactRepository;
@@ -38,7 +38,6 @@ public class ContactServiceImp implements ContactService {
     @Value("${number.of.contacts.by.page}")
     private Integer numberOfContactsByPage;
 
-    @Transactional
     @Override
     public List<GetAllContactsDTO> findAllContacts(Integer page)
     {
@@ -46,7 +45,7 @@ public class ContactServiceImp implements ContactService {
         return contactRepository.findByStatus(Status.ACTIVE, createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     @Override
     public Long addContact(ContactDTO contactDTO) {
 
@@ -67,7 +66,7 @@ public class ContactServiceImp implements ContactService {
         return contact.getId();
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     @Override
     public Long updateContact(ContactDTO contactDTO, Long id) throws ContactNotFoundExcpetion {
 
@@ -91,7 +90,7 @@ public class ContactServiceImp implements ContactService {
         return contact.getId();
     }
 
-    @Transactional( readOnly = false)
+    @Transactional
     @Override
     public void deleteContact(Long id) throws ContactNotFoundExcpetion
     {
@@ -108,7 +107,6 @@ public class ContactServiceImp implements ContactService {
         log.debug("Contact saved to database!");
     }
 
-    @Transactional
     @Override
     public GetContactByIdDTO findContactByID(Long id) throws ContactNotFoundExcpetion {
 
@@ -136,7 +134,6 @@ public class ContactServiceImp implements ContactService {
         return pageable;
     }
 
-    @Transactional
     @Override
     public Contact findById(Long id) throws ContactNotFoundExcpetion
     {
