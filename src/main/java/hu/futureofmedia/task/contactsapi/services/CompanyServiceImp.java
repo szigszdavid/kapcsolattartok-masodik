@@ -7,6 +7,9 @@ import hu.futureofmedia.task.contactsapi.repositories.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -29,6 +32,7 @@ public class CompanyServiceImp  implements CompanyService{
     }
 
     @Override
+    @Transactional
     public void addCompany(CompanyDTO dto) {
 
         log.info("addCompany with CompanyDTO: {}", dto);

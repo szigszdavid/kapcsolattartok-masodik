@@ -34,6 +34,11 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
     implementation 'com.googlecode.libphonenumber:libphonenumber:8.12.45'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2', version: '2.6.5'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.3'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.6.6'
+    testImplementation group: 'org.springframework.security', name: 'spring-security-test', version: '5.6.2'
+    implementation group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.5.1.RELEASE'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-oauth2-resource-server', version: '2.6.6'
 
 }
 

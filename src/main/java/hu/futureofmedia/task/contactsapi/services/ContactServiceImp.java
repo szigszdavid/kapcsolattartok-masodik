@@ -28,7 +28,6 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Transactional(isolation = Isolation.SERIALIZABLE, readOnly = true, propagation = Propagation.REQUIRED)
 public class ContactServiceImp implements ContactService {
 
     private final ContactRepository contactRepository;
@@ -121,7 +120,7 @@ public class ContactServiceImp implements ContactService {
         return getContactByIdDTO;
     }
 
-    @Transactional(propagation = Propagation.NEVER)
+    @Transactional
     @Override
     public Pageable createNewPageable(Integer page)
     {

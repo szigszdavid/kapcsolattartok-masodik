@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.postgresql.util.PSQLException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,18 @@ public class ContactControllerAdvice extends ResponseEntityExceptionHandler {
         ApiError apiError =
                 new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
         log.error("ContactNotFoundExcpetion thrown, " + error);
+        return new ResponseEntity<Object>(
+                apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler({ PSQLException.class })
+    public ResponseEntity<Object> handlePSQLException(
+            PSQLException ex, WebRequest request) {
+        String error = ex.getClass() + ":" + ex.getMessage();
+
+        ApiError apiError =
+                new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+        log.error("PSQLException thrown, " + error);
         return new ResponseEntity<Object>(
                 apiError, new HttpHeaders(), apiError.getStatus());
     }

@@ -3,14 +3,24 @@ package hu.futureofmedia.task.contactsapi.controllers;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetContactByIdDTO;
+import hu.futureofmedia.task.contactsapi.entities.Role;
+import hu.futureofmedia.task.contactsapi.entities.User;
 import hu.futureofmedia.task.contactsapi.exceptions.ContactNotFoundExcpetion;
 import hu.futureofmedia.task.contactsapi.services.ContactService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -26,6 +36,7 @@ public class ContactController {
     {
         log.info("findAllContacts on page: {} called", page);
         return contactService.findAllContacts(page);
+
     }
 
     @GetMapping("/{id}")
