@@ -1,13 +1,16 @@
 package hu.futureofmedia.task.contactsapi.dtos;
 
-import hu.futureofmedia.task.contactsapi.entities.Role;
+import hu.futureofmedia.task.contactsapi.domain.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-import javax.persistence.ElementCollection;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,16 +19,17 @@ import java.util.Set;
 @AllArgsConstructor
 public class CreateUserRequest {
 
-    @NotBlank
+    @NotBlank(message = "CreateUserRequest.username.Required")
     @Email
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "CreateUserRequest.password.Required")
     private String password;
 
-    @NotBlank
+    @NotBlank(message = "CreateUserRequest.fullName.Required")
     private String fullName;
 
-    @ElementCollection
-    private Set<Role> authorities = new HashSet<>();
+    @ToString.Exclude
+    @NotEmpty(message = "CreateUserRequest.roles.Required")
+    private Collection<Role> authorities = new ArrayList<>();
 }

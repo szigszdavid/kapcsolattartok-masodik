@@ -1,24 +1,23 @@
-package hu.futureofmedia.task.contactsapi.entities;
+package hu.futureofmedia.task.contactsapi.domain;
 
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static javax.persistence.GenerationType.AUTO;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 @Entity
-public class User extends ComparableEntity implements UserDetails {
+@Table(name = "my_user")
+public class User /*extends ComparableEntity implements UserDetails*/ {
 
     @Id
     @GeneratedValue(strategy = AUTO)
@@ -26,11 +25,11 @@ public class User extends ComparableEntity implements UserDetails {
 
     @CreatedDate
     @Column
-    private LocalDateTime createdAt;
+    private LocalDateTime createdDate;
 
     @LastModifiedDate
     @Column
-    private LocalDateTime modifiedAt;
+    private LocalDateTime lastModifiedDate;
 
     @Column
     private boolean enabled = true;
@@ -44,10 +43,15 @@ public class User extends ComparableEntity implements UserDetails {
     @Column
     private String fullName;
 
-    @Column
-    @ElementCollection
-    private Set<Role> authorities = new HashSet<>();
+    @Column(name = "authorities")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToMany(fetch = FetchType.LAZY, cascade=CascadeType.MERGE)
+    @JoinColumn(name = "role_id")
+    private Collection<Role> authorities = new ArrayList<>();
 
+
+    /*
     @Override
     public boolean isAccountNonExpired() {
         return enabled;
@@ -62,5 +66,6 @@ public class User extends ComparableEntity implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return enabled;
     }
+    */
 
 }

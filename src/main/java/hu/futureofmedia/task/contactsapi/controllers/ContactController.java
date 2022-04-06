@@ -3,8 +3,6 @@ package hu.futureofmedia.task.contactsapi.controllers;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetContactByIdDTO;
-import hu.futureofmedia.task.contactsapi.entities.Role;
-import hu.futureofmedia.task.contactsapi.entities.User;
 import hu.futureofmedia.task.contactsapi.exceptions.ContactNotFoundExcpetion;
 import hu.futureofmedia.task.contactsapi.services.ContactService;
 import lombok.RequiredArgsConstructor;

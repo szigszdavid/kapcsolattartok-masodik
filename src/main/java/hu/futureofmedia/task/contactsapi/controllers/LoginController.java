@@ -1,6 +1,5 @@
 package hu.futureofmedia.task.contactsapi.controllers;
 
-import hu.futureofmedia.task.contactsapi.entities.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;

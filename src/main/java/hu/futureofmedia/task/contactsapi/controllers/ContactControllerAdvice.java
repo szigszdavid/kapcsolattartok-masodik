@@ -2,6 +2,7 @@ package hu.futureofmedia.task.contactsapi.controllers;
 
 import hu.futureofmedia.task.contactsapi.apierrors.ApiError;
 import hu.futureofmedia.task.contactsapi.exceptions.ContactNotFoundExcpetion;
+import hu.futureofmedia.task.contactsapi.exceptions.UserNotFoundExcpetion;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -60,6 +61,18 @@ public class ContactControllerAdvice extends ResponseEntityExceptionHandler {
         ApiError apiError =
                 new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
         log.error("PSQLException thrown, " + error);
+        return new ResponseEntity<Object>(
+                apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler({ UserNotFoundExcpetion.class })
+    public ResponseEntity<Object> handleUserNotFoundException(
+            UserNotFoundExcpetion ex, WebRequest request) {
+        String error = ex.getClass() + ":" + ex.getMessage();
+
+        ApiError apiError =
+                new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+        log.error("UserNotFoundExcpetion thrown, " + error);
         return new ResponseEntity<Object>(
                 apiError, new HttpHeaders(), apiError.getStatus());
     }

@@ -1,4 +1,4 @@
-package hu.futureofmedia.task.contactsapi.entities;
+package hu.futureofmedia.task.contactsapi.domain;
 
 import java.io.Serializable;
 
