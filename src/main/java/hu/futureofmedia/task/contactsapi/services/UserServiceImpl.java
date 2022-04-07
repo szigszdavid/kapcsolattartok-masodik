@@ -3,8 +3,11 @@ package hu.futureofmedia.task.contactsapi.services;
 import hu.futureofmedia.task.contactsapi.domain.Role;
 import hu.futureofmedia.task.contactsapi.domain.User;
 import hu.futureofmedia.task.contactsapi.dtos.CreateUserRequest;
+import hu.futureofmedia.task.contactsapi.entities.Contact;
+import hu.futureofmedia.task.contactsapi.entities.Status;
 import hu.futureofmedia.task.contactsapi.exceptions.UserNotFoundExcpetion;
 import hu.futureofmedia.task.contactsapi.mapper.UserMapper;
+import hu.futureofmedia.task.contactsapi.repositories.RoleRepository;
 import hu.futureofmedia.task.contactsapi.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 @Slf4j
@@ -34,12 +38,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional
     public Long addUser(CreateUserRequest request) {
 
+        log.info("addUser called with: {} !", request);
+
         User user = mapper.createUserRequestToUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
+        Iterator<Long> roleIterator = request.getRolesId().iterator();
+
+        while (roleIterator.hasNext())
+        {
+            user.getRoles().add(roleService.findRoleById(roleIterator.next()).get());
+        }
+
+        log.debug("User data before save: {}", user);
+
         userRepository.save(user);
 
+        log.debug("User saved to database!");
+
         return user.getId();
+
     }
 
     @Override
@@ -52,22 +70,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findAll();
     }
 
-    @Override
-    public void setRoleForUser(String username, String roleName) throws UserNotFoundExcpetion {
-        User user = findUser(username);
-
-        user.getAuthorities().add(roleService.findRoleByRoleName(roleName).get());
-    }
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
 
-        Collection<SimpleGrantedAuthority> vala = new ArrayList<>();
-        Collection<Role> roles = user.getAuthorities();
-        user.getAuthorities().forEach(role -> vala.add(new SimpleGrantedAuthority(role.getRoleName())));
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), vala);
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
     }
 }

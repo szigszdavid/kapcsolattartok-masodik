@@ -20,7 +20,7 @@ import static javax.persistence.GenerationType.AUTO;
 public class User /*extends ComparableEntity implements UserDetails*/ {
 
     @Id
-    @GeneratedValue(strategy = AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @CreatedDate
@@ -43,12 +43,13 @@ public class User /*extends ComparableEntity implements UserDetails*/ {
     @Column
     private String fullName;
 
-    @Column(name = "authorities")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @ManyToMany(fetch = FetchType.LAZY, cascade=CascadeType.MERGE)
-    @JoinColumn(name = "role_id")
-    private Collection<Role> authorities = new ArrayList<>();
+    @Column(name = "roles")
+    @ManyToMany
+    @JoinTable(
+            name = "my_user_roles",
+            joinColumns = @JoinColumn(name = "my_user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
 
     /*

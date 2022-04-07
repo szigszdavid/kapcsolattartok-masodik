@@ -9,5 +9,7 @@ public interface RoleService {
 
     Long addRole(RoleCreateRequest request);
 
-    Optional<Role> findRoleByRoleName(String roleName);
+    Optional<Role> findRoleById(Long id);
+
+    Optional<Role> findRoleByName(String roleName);
 }

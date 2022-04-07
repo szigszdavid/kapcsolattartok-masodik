@@ -17,13 +17,12 @@ import javax.validation.constraints.NotBlank;
 public class Role {
 
     @Id
-    @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
     @NotBlank
-    private String roleName;
+    private String name;
 
 }
 /*

@@ -14,5 +14,4 @@ public interface UserService {
 
     List<User> findAllUser();
 
-    void setRoleForUser(String username, String roleName) throws UserNotFoundExcpetion;
 }

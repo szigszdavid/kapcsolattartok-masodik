@@ -9,6 +9,7 @@ import lombok.ToString;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,7 +30,6 @@ public class CreateUserRequest {
     @NotBlank(message = "CreateUserRequest.fullName.Required")
     private String fullName;
 
-    @ToString.Exclude
-    @NotEmpty(message = "CreateUserRequest.roles.Required")
-    private Collection<Role> authorities = new ArrayList<>();
+    @NotNull(message = "CreateUserRequest.roles.Required")
+    private Set<Long> rolesId;
 }

@@ -29,6 +29,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 import static java.lang.String.format;
+
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import hu.futureofmedia.task.contactsapi.exceptions.UserNotFoundExcpetion;
@@ -55,7 +56,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
-        http.authorizeRequests().anyRequest().permitAll();
+        http.authorizeRequests().antMatchers("/login/**").permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.GET, "/contacts/**").hasAnyAuthority("USER");
+        http.authorizeRequests().antMatchers(HttpMethod.POST, "/contacts/**").hasAnyAuthority("ADMIN");
+        http.authorizeRequests().anyRequest().authenticated();
         http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
     }
 
