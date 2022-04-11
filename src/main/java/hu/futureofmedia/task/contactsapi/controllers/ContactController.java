@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +30,7 @@ public class ContactController {
 
     private final ContactService contactService;
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping
     public List<GetAllContactsDTO> findAllContacts(@RequestParam(name = "page", required = false) Integer page)
     {
@@ -37,6 +39,7 @@ public class ContactController {
 
     }
 
+    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping("/{id}")
     public GetContactByIdDTO findContactById(@PathVariable Long id) throws ContactNotFoundExcpetion
     {
@@ -44,6 +47,7 @@ public class ContactController {
         return contactService.findContactByID(id);
     }
 
+    @Secured("ROLE_ADMIN")
     @PostMapping
     public Long addContact(@Valid @RequestBody ContactDTO contactDTO)
     {
@@ -51,6 +55,7 @@ public class ContactController {
         return contactService.addContact(contactDTO);
     }
 
+    @Secured("ROLE_ADMIN")
     @PutMapping("/{id}")
     public Long updateContact(@Valid @RequestBody ContactDTO contactDTO, @PathVariable Long id) throws ContactNotFoundExcpetion
     {
@@ -58,6 +63,7 @@ public class ContactController {
         return contactService.updateContact(contactDTO, id);
     }
 
+    @Secured("ROLE_ADMIN")
     @DeleteMapping("/{id}")
     public void deleteContact(@PathVariable Long id) throws ContactNotFoundExcpetion
     {

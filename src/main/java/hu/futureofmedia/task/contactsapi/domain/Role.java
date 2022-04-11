@@ -8,6 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Data
@@ -23,6 +25,19 @@ public class Role {
     @Column
     @NotBlank
     private String name;
+
+    @Column(name = "roles")
+    @ManyToMany
+    @JoinTable(
+            name = "role_privileges",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "privilege_id"))
+    private Set<Privilege> privileges = new HashSet<>();
+
+    public Role(String name)
+    {
+        this.name = name;
+    }
 
 }
 /*
