@@ -54,5 +54,5 @@ values ('Company #1'),
        ('Company #3');
 
 insert into role (name)
-values ('USER'),
-       ('ADMIN');
+values ('ROLE_USER'),
+       ('ROLE_ADMIN');
