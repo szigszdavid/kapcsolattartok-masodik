@@ -30,7 +30,6 @@ public class ContactController {
 
     private final ContactService contactService;
 
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
     @GetMapping
     public List<GetAllContactsDTO> findAllContacts(@RequestParam(name = "page", required = false) Integer page)
     {
@@ -39,7 +38,7 @@ public class ContactController {
 
     }
 
-    @Secured({"ROLE_USER", "ROLE_ADMIN"})
+    @Secured("ROLE_USER")
     @GetMapping("/{id}")
     public GetContactByIdDTO findContactById(@PathVariable Long id) throws ContactNotFoundExcpetion
     {

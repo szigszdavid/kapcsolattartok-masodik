@@ -34,7 +34,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getServletPath().equals("/login") /*|| request.getServletPath().equals("/user/token/refresh")*/) {
+        if (request.getServletPath().equals("/login") || request.getServletPath().equals("/user/token/refresh")) {
             filterChain.doFilter(request, response);
         }
         else
@@ -42,7 +42,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             String autharizationHeader = request.getHeader(AUTHORIZATION);
 
 
-            if (autharizationHeader != null) {
+            if (autharizationHeader != null && autharizationHeader.startsWith("Bearer ")) {
             try {
                 String token = autharizationHeader.substring("Bearer ".length());
                 Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());

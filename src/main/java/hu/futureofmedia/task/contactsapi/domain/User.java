@@ -17,7 +17,7 @@ import static javax.persistence.GenerationType.AUTO;
 @AllArgsConstructor
 @Entity
 @Table(name = "my_user")
-public class User /*extends ComparableEntity implements UserDetails*/ {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,22 +51,5 @@ public class User /*extends ComparableEntity implements UserDetails*/ {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-
-    /*
-    @Override
-    public boolean isAccountNonExpired() {
-        return enabled;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return enabled;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return enabled;
-    }
-    */
 
 }

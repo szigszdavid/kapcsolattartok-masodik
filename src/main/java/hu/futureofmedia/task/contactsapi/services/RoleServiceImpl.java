@@ -8,12 +8,14 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService{
 
     private final RoleRepository roleRepository;
+    private final PrivilegeService privilegeService;
 
     @Override
     @Transactional
@@ -28,7 +30,18 @@ public class RoleServiceImpl implements RoleService{
 
     @Override
     public Optional<Role> findRoleByName(String roleName) {
+
         return roleRepository.findByName(roleName);
+    }
+
+    @Override
+    public List<Role> findRolesByName(String name) {
+        return roleRepository.findAllByName(name);
+    }
+
+    @Override
+    public List<Role> findAll() {
+        return roleRepository.findAll();
     }
 
 

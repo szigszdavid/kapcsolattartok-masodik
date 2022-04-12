@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hu.futureofmedia.task.contactsapi.domain.Role;
 import hu.futureofmedia.task.contactsapi.domain.User;
 import hu.futureofmedia.task.contactsapi.dtos.CreateUserRequest;
+import hu.futureofmedia.task.contactsapi.dtos.GetUserByIdRequestDto;
 import hu.futureofmedia.task.contactsapi.exceptions.UserNotFoundExcpetion;
 import hu.futureofmedia.task.contactsapi.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,9 @@ public class UserController {
     {
         return userService.findAllUser();
     }
+
+    @GetMapping("/{id}")
+    public GetUserByIdRequestDto findUserById(@PathVariable Long id) throws UserNotFoundExcpetion { return userService.findUserById(id);}
 
     @PostMapping
     public Long addUser(@RequestBody CreateUserRequest request)

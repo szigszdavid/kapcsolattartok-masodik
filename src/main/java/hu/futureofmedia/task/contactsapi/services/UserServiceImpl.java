@@ -1,8 +1,10 @@
 package hu.futureofmedia.task.contactsapi.services;
 
+import hu.futureofmedia.task.contactsapi.domain.Privilege;
 import hu.futureofmedia.task.contactsapi.domain.Role;
 import hu.futureofmedia.task.contactsapi.domain.User;
 import hu.futureofmedia.task.contactsapi.dtos.CreateUserRequest;
+import hu.futureofmedia.task.contactsapi.dtos.GetUserByIdRequestDto;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
 import hu.futureofmedia.task.contactsapi.exceptions.UserNotFoundExcpetion;
@@ -19,10 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
+    private final PrivilegeService privilegeService;
 
     @Override
     @Transactional
@@ -47,7 +48,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         while (roleIterator.hasNext())
         {
-            user.getRoles().add(roleService.findRoleById(roleIterator.next()).get());
+            Role role = roleService.findRoleById(roleIterator.next()).get();
+            //List<Long> idList = roleService.findRolesByName(role.getName()).stream().map(el -> el = el.get);
+            //role.setPrivileges(privilegeService.findPrivilegesById(idList).stream().collect(Collectors.toSet()));
+            List<Role> roles = roleService.findAll();
+            user.getRoles().add(role);
         }
 
         log.debug("User data before save: {}", user);
@@ -68,6 +73,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public List<User> findAllUser() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public GetUserByIdRequestDto findUserById(Long id) throws UserNotFoundExcpetion {
+
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundExcpetion("User not found!"));
+
+        GetUserByIdRequestDto dto = mapper.userToGetUserByIdRequestDro(user);
+
+        return dto;
     }
 
 
