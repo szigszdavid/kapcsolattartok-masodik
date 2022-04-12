@@ -1,9 +1,11 @@
 package hu.futureofmedia.task.contactsapi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hu.futureofmedia.task.contactsapi.apierrors.ApiError;
 import hu.futureofmedia.task.contactsapi.dtos.CompanyDTO;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
+import hu.futureofmedia.task.contactsapi.dtos.CreateUserRequest;
 import hu.futureofmedia.task.contactsapi.entities.Company;
 import hu.futureofmedia.task.contactsapi.services.CompanyService;
 import hu.futureofmedia.task.contactsapi.services.ContactService;
@@ -18,8 +20,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.HashSet;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -116,13 +121,15 @@ public class ControllerTest {
 
         mvc.perform(delete("/contacts/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(user("user").roles("ADMIN")))
                 .andExpect(status().isOk());
 
         secondPageContent = mvc.perform(
                         get("/contacts")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .param("page","1"))
+                                .param("page","1")
+                                .with(user("user").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse().getContentAsString();
@@ -216,11 +223,13 @@ public class ControllerTest {
 
         mvc.perform(delete("/contacts/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(user("admin").roles("ADMIN")))
                 .andExpect(status().isOk());
 
         mvc.perform(get("/contacts/1")
-                        .contentType("application/json"))
+                        .contentType("application/json")
+                        .with(user("admin").roles("USER")))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -240,11 +249,13 @@ public class ControllerTest {
         mvc.perform(put("/contacts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .content(body))
+                        .content(body)
+                        .with(user("user").roles("ADMIN")))
                 .andExpect(status().isOk());
 
         mvc.perform(get("/contacts/1")
-                        .contentType("application/json"))
+                        .contentType("application/json")
+                        .with(user("user").roles("USER")))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -262,7 +273,8 @@ public class ControllerTest {
         mvc.perform(
                         get("/contacts")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .param("page","0"))
+                                .param("page","0")
+                                )
                         .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[0].fullName", is(contactDTOFirst.getFirstName() + " " + contactDTOFirst.getLastName())))
@@ -274,7 +286,8 @@ public class ControllerTest {
         ContactDTO contactDTO = createValidContact(1L);
 
         mvc.perform(get("/contacts/1")
-                        .contentType("application/json"))
+                        .contentType("application/json")
+                        .with(user("user").roles("USER")))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -286,7 +299,8 @@ public class ControllerTest {
     void findContactByFakeIdTest() throws Exception {
 
         mvc.perform(get("/contacts/{id}",300)
-                        .contentType("application/json"))
+                        .contentType("application/json")
+                        .with(user("user").roles("USER")))
                         .andExpect(status().isBadRequest())
                         .andDo(print());
 
@@ -300,11 +314,126 @@ public class ControllerTest {
 
         mvc.perform(post("/contacts")
                         .contentType("application/json")
-                        .content(body))
+                        .content(body)
+                        .with(user("user").roles("ADMIN")))
                 .andExpect(jsonPath("$", is(1)));
 
     }
 
+    @Test
+    void createUserWithValidDataTest() throws Exception {
+
+        CreateUserRequest createUserRequest = createValidUserProfile();
+
+        String body = objectMapper.writeValueAsString(createUserRequest);
+
+        mvc.perform(post("/user")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(jsonPath("$", is(1)));
+    }
+
+    @Test
+    void createUserWithBlankDataTest() throws Exception {
+
+        CreateUserRequest createUserRequest = createValidUserProfile();
+        createUserRequest.setUsername("");
+
+        String body = objectMapper.writeValueAsString(createUserRequest);
+
+        MvcResult result = mvc.perform(post("/user")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        ApiError apiError = objectMapper.readValue(content, ApiError.class);
+        assertEquals("username: CreateUserRequest.username.Required", apiError.getErrors().get(0));
+    }
+
+    @Test
+    void createUserWithInvalidEmailAddressTest() throws Exception {
+
+        CreateUserRequest createUserRequest = createValidUserProfile();
+        createUserRequest.setUsername("usernamegmail.com");
+
+        String body = objectMapper.writeValueAsString(createUserRequest);
+
+        MvcResult result = mvc.perform(post("/user")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        ApiError apiError = objectMapper.readValue(content, ApiError.class);
+        assertEquals("username: CreateUserRequest.username Email format required", apiError.getErrors().get(0));
+    }
+
+    @Test
+    void addValidContactWithUserProfileTest() throws Exception {
+
+        ContactDTO contactDTO = createValidContact(1L);
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(post("/contacts")
+                        .contentType("application/json")
+                        .content(body)
+                        .with(user("user").roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void addValidContactWithoutProfileTest() throws Exception {
+
+        ContactDTO contactDTO = createValidContact(1L);
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(post("/contacts")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void findContactByIdWithAdminProfileTest() throws Exception {
+
+        ContactDTO contactDTO = createValidContact(1L);
+
+        mvc.perform(get("/contacts/1")
+                        .contentType("application/json")
+                        .with(user("user").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1L));
+    }
+
+    @Test
+    void findContactByIdWithoutProfileTest() throws Exception {
+        ContactDTO contactDTO = createValidContact(1L);
+
+        mvc.perform(get("/contacts/1")
+                        .contentType("application/json")
+                        )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    private CreateUserRequest createValidUserProfile()
+    {
+        CreateUserRequest createUserRequest = new CreateUserRequest();
+
+        createUserRequest.setUsername("username@gmail.com");
+        createUserRequest.setFullName("fullname");
+        createUserRequest.setPassword("password");
+        createUserRequest.setRolesId(new HashSet<>(1));
+
+        return createUserRequest;
+    }
 
     private ContactDTO createValidContact(Long id)
     {

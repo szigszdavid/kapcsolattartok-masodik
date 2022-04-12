@@ -1,7 +1,6 @@
 package hu.futureofmedia.task.contactsapi.services;
 
 import hu.futureofmedia.task.contactsapi.domain.Role;
-import hu.futureofmedia.task.contactsapi.dtos.RoleCreateRequest;
 import hu.futureofmedia.task.contactsapi.repositories.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,12 +15,6 @@ public class RoleServiceImpl implements RoleService{
 
     private final RoleRepository roleRepository;
     private final PrivilegeService privilegeService;
-
-    @Override
-    @Transactional
-    public Long addRole(RoleCreateRequest request) {
-        return null;
-    }
 
     @Override
     public Optional<Role> findRoleById(Long id) {

@@ -38,7 +38,7 @@ public class ContactController {
 
     }
 
-    @Secured("ROLE_USER")
+    @Secured({"ROLE_USER","ROLE_ADMIN"})
     @GetMapping("/{id}")
     public GetContactByIdDTO findContactById(@PathVariable Long id) throws ContactNotFoundExcpetion
     {

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ public class UserController {
     public GetUserByIdRequestDto findUserById(@PathVariable Long id) throws UserNotFoundExcpetion { return userService.findUserById(id);}
 
     @PostMapping
-    public Long addUser(@RequestBody CreateUserRequest request)
+    public Long addUser(@RequestBody @Valid CreateUserRequest request)
     {
         log.info("addUser with CreateUserRequest: {} called", request);
 

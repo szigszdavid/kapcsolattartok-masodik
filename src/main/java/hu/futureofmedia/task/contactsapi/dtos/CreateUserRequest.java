@@ -21,7 +21,7 @@ import java.util.Set;
 public class CreateUserRequest {
 
     @NotBlank(message = "CreateUserRequest.username.Required")
-    @Email
+    @Email(message = "CreateUserRequest.username Email format required")
     private String username;
 
     @NotBlank(message = "CreateUserRequest.password.Required")
