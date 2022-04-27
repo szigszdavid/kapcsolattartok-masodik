@@ -43,13 +43,14 @@ public class User {
     @Column
     private String fullName;
 
-    @Column(name = "roles")
+
+    @Column(name = "privileges")
     @ManyToMany
     @JoinTable(
-            name = "my_user_roles",
+            name = "my_user_privileges",
             joinColumns = @JoinColumn(name = "my_user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+            inverseJoinColumns = @JoinColumn(name = "privilege_id"))
+    private Set<Privilege> privileges = new HashSet<>();
 
 
 }

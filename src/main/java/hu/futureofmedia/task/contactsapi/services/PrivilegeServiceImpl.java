@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,7 +15,7 @@ public class PrivilegeServiceImpl implements PrivilegeService{
     private final PrivilegeRepository privilegeRepository;
 
     @Override
-    public List<Privilege> findPrivilegesById(List<Long> idList) {
-        return privilegeRepository.findAllById(idList);
+    public Optional<Privilege> findPrivilegeById(Long id) {
+        return privilegeRepository.findById(id);
     }
 }

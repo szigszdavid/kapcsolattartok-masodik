@@ -3,12 +3,16 @@ package hu.futureofmedia.task.contactsapi.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hu.futureofmedia.task.contactsapi.domain.Privilege;
 import hu.futureofmedia.task.contactsapi.domain.Role;
 import hu.futureofmedia.task.contactsapi.domain.User;
+import hu.futureofmedia.task.contactsapi.dtos.AuthRequest;
 import hu.futureofmedia.task.contactsapi.services.RoleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.jandex.PrimitiveType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -16,6 +20,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -33,6 +38,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
     private final AuthenticationManager authenticationManager;
 
+    /*
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
@@ -42,6 +48,34 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
 
         return authenticationManager.authenticate(authenticationToken);
+    }*/
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
+
+        if (!request.getMethod()
+                .equals("POST")) {
+            throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
+        }
+
+        UsernamePasswordAuthenticationToken authRequest = getAuthRequest(request);
+        setDetails(request, authRequest);
+        return authenticationManager.authenticate(authRequest);
+    }
+
+    private UsernamePasswordAuthenticationToken getAuthRequest(HttpServletRequest request) {
+        String username = obtainUsername(request);
+        String password = obtainPassword(request);
+
+        if (username == null) {
+            username = "";
+        }
+        if (password == null) {
+            password = "";
+        }
+
+        return new UsernamePasswordAuthenticationToken(username, password);
     }
 
     @Override
@@ -55,9 +89,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         for (Object element : auth) {
 
-            Role role = new Role();
-            role.setName(element.toString());
-            user.getRoles().add(role);
+            Privilege privilege = new Privilege();
+            privilege.setName(element.toString());
+            user.getPrivileges().add(privilege);
         }
 
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
@@ -65,7 +99,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                 .withSubject(user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString())
-                .withClaim("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
+                .withClaim("privileges", user.getPrivileges().stream().map(Privilege::getName).collect(Collectors.toList()))
                 .sign(algorithm);
 
         String refresh_token = JWT.create()

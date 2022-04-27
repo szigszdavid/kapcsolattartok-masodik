@@ -38,7 +38,7 @@ public class ContactController {
 
     }
 
-    @Secured({"ROLE_USER","ROLE_ADMIN"})
+    @Secured("ROLE_LIST")
     @GetMapping("/{id}")
     public GetContactByIdDTO findContactById(@PathVariable Long id) throws ContactNotFoundExcpetion
     {
@@ -46,7 +46,7 @@ public class ContactController {
         return contactService.findContactByID(id);
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_CREATE")
     @PostMapping
     public Long addContact(@Valid @RequestBody ContactDTO contactDTO)
     {
@@ -54,7 +54,7 @@ public class ContactController {
         return contactService.addContact(contactDTO);
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_MODIFY")
     @PutMapping("/{id}")
     public Long updateContact(@Valid @RequestBody ContactDTO contactDTO, @PathVariable Long id) throws ContactNotFoundExcpetion
     {
@@ -62,7 +62,7 @@ public class ContactController {
         return contactService.updateContact(contactDTO, id);
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_DELETE")
     @DeleteMapping("/{id}")
     public void deleteContact(@PathVariable Long id) throws ContactNotFoundExcpetion
     {

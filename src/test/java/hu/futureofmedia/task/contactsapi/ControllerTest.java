@@ -122,7 +122,7 @@ public class ControllerTest {
         mvc.perform(delete("/contacts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .with(user("user").roles("ADMIN")))
+                        .with(user("user").roles("DELETE")))
                 .andExpect(status().isOk());
 
         secondPageContent = mvc.perform(
@@ -207,6 +207,7 @@ public class ControllerTest {
 
         MvcResult result = mvc.perform(post("/contacts")
                         .contentType("application/json")
+                        .with(user("admin").roles("CREATE"))
                         .content(body))
                         .andExpect(status().isBadRequest())
                         .andReturn();
@@ -224,12 +225,12 @@ public class ControllerTest {
         mvc.perform(delete("/contacts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .with(user("admin").roles("ADMIN")))
+                        .with(user("admin").roles("DELETE")))
                 .andExpect(status().isOk());
 
         mvc.perform(get("/contacts/1")
                         .contentType("application/json")
-                        .with(user("admin").roles("USER")))
+                        .with(user("admin").roles("LIST")))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -250,12 +251,12 @@ public class ControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(body)
-                        .with(user("user").roles("ADMIN")))
+                        .with(user("user").roles("MODIFY")))
                 .andExpect(status().isOk());
 
         mvc.perform(get("/contacts/1")
                         .contentType("application/json")
-                        .with(user("user").roles("USER")))
+                        .with(user("user").roles("LIST")))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -287,7 +288,7 @@ public class ControllerTest {
 
         mvc.perform(get("/contacts/1")
                         .contentType("application/json")
-                        .with(user("user").roles("USER")))
+                        .with(user("user").roles("LIST")))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -300,7 +301,7 @@ public class ControllerTest {
 
         mvc.perform(get("/contacts/{id}",300)
                         .contentType("application/json")
-                        .with(user("user").roles("USER")))
+                        .with(user("user").roles("LIST")))
                         .andExpect(status().isBadRequest())
                         .andDo(print());
 
@@ -315,7 +316,7 @@ public class ControllerTest {
         mvc.perform(post("/contacts")
                         .contentType("application/json")
                         .content(body)
-                        .with(user("user").roles("ADMIN")))
+                        .with(user("user").roles("CREATE")))
                 .andExpect(jsonPath("$", is(1)));
 
     }
@@ -380,8 +381,8 @@ public class ControllerTest {
         mvc.perform(post("/contacts")
                         .contentType("application/json")
                         .content(body)
-                        .with(user("user").roles("USER")))
-                .andExpect(status().isForbidden());
+                        .with(user("user").roles("CREATE")))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -403,7 +404,7 @@ public class ControllerTest {
 
         mvc.perform(get("/contacts/1")
                         .contentType("application/json")
-                        .with(user("user").roles("ADMIN")))
+                        .with(user("user").roles("LIST")))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -416,10 +417,21 @@ public class ControllerTest {
 
         mvc.perform(get("/contacts/1")
                         .contentType("application/json")
-                        )
-                .andExpect(status().isOk())
+                )
                 .andDo(print())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void usingWrongPrivilegesTest() throws Exception
+    {
+        ContactDTO contactDTO = createValidContact(1L);
+        String body = objectMapper.writeValueAsString(contactDTO);
+
+        mvc.perform(post("/contacts")
+                        .contentType("application/json")
+                        .content(body)
+                        .with(user("user").roles("MODIFY")))
                 .andExpect(status().isForbidden());
     }
 
@@ -430,7 +442,7 @@ public class ControllerTest {
         createUserRequest.setUsername("username@gmail.com");
         createUserRequest.setFullName("fullname");
         createUserRequest.setPassword("password");
-        createUserRequest.setRolesId(new HashSet<>(1));
+        createUserRequest.setPrivilegesId(new HashSet<>(1));
 
         return createUserRequest;
     }

@@ -56,11 +56,11 @@ create table privilege
     constraint pk_privilege primary key (id)
 );
 
-create table role_privileges
+create table my_user_privileges
 (
-    role_id    bigint,
+    my_user_id    bigint,
     privilege_id bigint,
-    constraint fk_role_id foreign key(role_id) references role(id),
+    constraint fk_my_user_id foreign key(my_user_id) references my_user(id),
     constraint fk_privilege_id foreign key(privilege_id) references privilege(id)
 );
 
@@ -80,10 +80,4 @@ values ('ROLE_USER'),
        ('ROLE_ADMIN');
 
 
-insert into role_privileges(role_id, privilege_id)
-values (1,1),
-       (2,1),
-       (2,2),
-       (2,3),
-       (2,4);
 

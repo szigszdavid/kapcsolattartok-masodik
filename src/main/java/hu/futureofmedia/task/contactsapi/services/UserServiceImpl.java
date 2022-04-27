@@ -44,15 +44,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User user = mapper.createUserRequestToUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Iterator<Long> roleIterator = request.getRolesId().iterator();
+        Iterator<Long> privilegeIterator = request.getPrivilegesId().iterator();
 
-        while (roleIterator.hasNext())
+        while (privilegeIterator.hasNext())
         {
-            Role role = roleService.findRoleById(roleIterator.next()).get();
-            //List<Long> idList = roleService.findRolesByName(role.getName()).stream().map(el -> el = el.get);
-            //role.setPrivileges(privilegeService.findPrivilegesById(idList).stream().collect(Collectors.toSet()));
-            List<Role> roles = roleService.findAll();
-            user.getRoles().add(role);
+            Privilege privilege = privilegeService.findPrivilegeById(privilegeIterator.next()).get();
+            user.getPrivileges().add(privilege);
         }
 
         log.debug("User data before save: {}", user);
@@ -92,7 +89,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
 
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
+        user.getPrivileges().forEach(privilege -> authorities.add(new SimpleGrantedAuthority(privilege.getName())));
 
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
     }

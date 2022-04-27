@@ -31,5 +31,5 @@ public class CreateUserRequest {
     private String fullName;
 
     @NotNull(message = "CreateUserRequest.roles.Required")
-    private Set<Long> rolesId;
+    private Set<Long> privilegesId;
 }
