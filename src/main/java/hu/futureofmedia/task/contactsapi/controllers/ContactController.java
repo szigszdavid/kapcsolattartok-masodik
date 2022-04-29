@@ -7,8 +7,10 @@ import hu.futureofmedia.task.contactsapi.exceptions.ContactNotFoundExcpetion;
 import hu.futureofmedia.task.contactsapi.services.ContactService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,6 +23,7 @@ import javax.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 @Slf4j
 @RestController
@@ -51,6 +54,7 @@ public class ContactController {
     public Long addContact(@Valid @RequestBody ContactDTO contactDTO)
     {
         log.info("addContact with ContactDTO: {} called", contactDTO);
+
         return contactService.addContact(contactDTO);
     }
 

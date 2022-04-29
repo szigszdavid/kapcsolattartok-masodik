@@ -11,11 +11,13 @@ import hu.futureofmedia.task.contactsapi.mapper.ContactMapper;
 import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.KPropertyPathExtensionsKt;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -23,12 +25,20 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.jms.Destination;
 import java.util.List;
+import javax.jms.Queue;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class ContactServiceImp implements ContactService {
+
+    @Autowired
+    private Queue queue;
+
+    @Autowired
+    private JmsTemplate jmsTemplate;
 
     private final ContactRepository contactRepository;
     private final CompanyService companyService;
@@ -61,6 +71,10 @@ public class ContactServiceImp implements ContactService {
         contactRepository.save(contact);
 
         log.debug("Contact saved to database!");
+
+        jmsTemplate.convertAndSend(queue,contactDTO.getEmailAddress() + "," + contactDTO.getFirstName() + "," + contactDTO.getLastName() + "," + contact.getCompany().getName());
+
+        log.info("ContactDTO sent to MessageQueue");
 
         return contact.getId();
     }

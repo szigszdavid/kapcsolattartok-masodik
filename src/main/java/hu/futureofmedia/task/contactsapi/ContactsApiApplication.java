@@ -21,7 +21,6 @@ public class ContactsApiApplication {
         SpringApplication.run(ContactsApiApplication.class, args);
     }
 
-
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
