@@ -405,13 +405,13 @@ public class GraphQLTest {
                 .andExpect(jsonPath("$.data.findContactById.status").value("DELETED"));
     }
 
-    /*
+
     @Test
     public void updateContactTest() throws Exception {
 
         ContactDTO contactDTO = createValidContact(1L);
 
-        String queryUpdate = "mutation {updateContact(id : 1, firstName : " + "FirstName" + ", lastName :" + "Tamas" + ", emailAddress : " +  "emailAddressgmailcom" + ", phoneNumber : " + "3631234567" + ", comment :" + "abc" + ", companyId :" + "1" + ") }";
+        String queryUpdate = "mutation {\r\n\r\n   updateContact(id : 1, firstName : \"Asd\", lastName : \"dfg\", emailAddress: \"abc@gmail.com\", phoneNumber: \"06301234567\", comment: \"Hello\", companyId : 1)\r\n}";
 
         String queryAfterDelete = "{findContactById(id: 1)\n" +
                 "     {\n" +
@@ -435,32 +435,30 @@ public class GraphQLTest {
                         .with(user("user").roles("MODIFY")))
                 .andExpect(status().isOk());
 
-        mvc.perform(get("/graphql")
+        mvc.perform(post("/graphql")
                         .contentType("application/json")
                         .content(queryAfterDelete)
                         .with(user("user").roles("LIST")))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.lastName", is("Tamas")));
+                .andExpect(jsonPath("$.data.findContactById.id").value(1))
+                .andExpect(jsonPath("$.data.findContactById.lastName", is("dfg")));
 
     }
 
     @Test
     void addValidContactTest() throws Exception {
 
-        ContactDTO contactDTO = createValidContact(1L);
-        String body = objectMapper.writeValueAsString(contactDTO);
+        String queryAdd = "mutation {\r\n\r\n   addContact(firstName : \"Asd\", lastName : \"dfg\", emailAddress: \"abc@gmail.com\", phoneNumber: \"06301234567\", comment: \"Hello\", companyId : 1)\r\n}";
 
         mvc.perform(post("/graphql")
                         .contentType("application/json")
-                        .content(body)
+                        .content(queryAdd)
                         .with(user("user").roles("CREATE")))
-                .andExpect(jsonPath("$", is(1)));
-    }
+                .andExpect(jsonPath("$.data.addContact", is("1")));
 
-     */
+    }
 
 
     private ContactDTO createValidContact(Long id)
