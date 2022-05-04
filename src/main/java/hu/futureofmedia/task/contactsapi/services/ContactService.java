@@ -1,5 +1,6 @@
 package hu.futureofmedia.task.contactsapi.services;
 
+import graphql.GraphQL;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetContactByIdDTO;
@@ -8,6 +9,7 @@ import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.exceptions.ContactNotFoundExcpetion;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public interface ContactService {
 

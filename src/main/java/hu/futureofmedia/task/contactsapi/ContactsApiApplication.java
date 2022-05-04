@@ -1,5 +1,8 @@
 package hu.futureofmedia.task.contactsapi;
 
+import graphql.Scalars;
+import graphql.schema.GraphQLObjectType;
+import graphql.schema.GraphQLSchema;
 import hu.futureofmedia.task.contactsapi.domain.Role;
 import hu.futureofmedia.task.contactsapi.domain.User;
 import hu.futureofmedia.task.contactsapi.dtos.CreateUserRequest;
@@ -25,6 +28,7 @@ public class ContactsApiApplication {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }
 
 

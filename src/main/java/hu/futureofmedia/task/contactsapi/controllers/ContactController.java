@@ -1,5 +1,6 @@
 package hu.futureofmedia.task.contactsapi.controllers;
 
+import graphql.ExecutionResult;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetContactByIdDTO;
@@ -22,6 +23,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Queue;
 
@@ -73,4 +75,5 @@ public class ContactController {
         log.info("deleteContact with id: {} called", id);
         contactService.deleteContact(id);
     }
+
 }

@@ -1,0 +1,50 @@
+ schema {
+     query : Query
+     mutation : Mutation
+ }
+
+ type Query {
+     findAllContacts(page: Int) : [Contact],
+     findContactById(id: ID!): GetContactByIdDTO,
+ }
+
+ type Mutation {
+    addContact(firstName : String!, lastName : String!, emailAddress: String!, phoneNumber: String!, comment: String, companyId : ID!) : ID,
+    updateContact(id: ID!, firstName : String!, lastName : String!, emailAddress: String!, phoneNumber: String!, comment: String, companyId : ID!) : ID,
+    deleteContact(id : ID!) : Boolean,
+ }
+
+ type GetContactByIdDTO {
+     id : ID!,
+     firstName : String!,
+     lastName : String!,
+     emailAddress : String!,
+     phoneNumber : String!,
+     status : Status!,
+     comment :String,
+     company : Company!,
+ }
+
+ type Contact {
+
+        firstName : String!
+        lastName : String!
+        emailAddress : String!
+        phoneNumber : String!
+        comment : String
+        company : Company!
+        status : Status!
+  }
+
+
+ type Company {
+
+    id : ID
+    name : String
+
+ }
+
+ enum Status {
+    ACTIVE,
+    DELETED
+ }
