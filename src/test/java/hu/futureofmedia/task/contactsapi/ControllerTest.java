@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.HashSet;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -73,11 +74,10 @@ public class ControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .param("page","0"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(10)))
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[0].fullName", is(contactDTOFirst.getFirstName() + " " + contactDTOFirst.getLastName())))
                 .andReturn().getResponse().getContentAsString();
-
-        assertEquals(10,content.split("fullName").length - 1);
 
         ContactDTO contactDTOLast = createValidContact(11L);
 
@@ -86,11 +86,11 @@ public class ControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .param("page","1"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[0].fullName", is(contactDTOLast.getFirstName() + " " + contactDTOLast.getLastName())))
                 .andReturn().getResponse().getContentAsString();
 
-        assertEquals(1,secondPageContent.split("fullName").length - 1);
     }
 
     @Test
@@ -278,6 +278,7 @@ public class ControllerTest {
                                 )
                         .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$.[0].fullName", is(contactDTOFirst.getFirstName() + " " + contactDTOFirst.getLastName())))
                 .andExpect(jsonPath("$.[1].fullName", is(contactDTOSecond.getFirstName() + " " + contactDTOSecond.getLastName())));
     }
