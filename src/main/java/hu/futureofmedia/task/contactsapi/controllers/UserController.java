@@ -10,6 +10,7 @@ import hu.futureofmedia.task.contactsapi.domain.Role;
 import hu.futureofmedia.task.contactsapi.domain.User;
 import hu.futureofmedia.task.contactsapi.dtos.CreateUserRequest;
 import hu.futureofmedia.task.contactsapi.dtos.GetUserByIdRequestDto;
+import hu.futureofmedia.task.contactsapi.dtos.GetUserByUsernameDto;
 import hu.futureofmedia.task.contactsapi.exceptions.UserNotFoundExcpetion;
 import hu.futureofmedia.task.contactsapi.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,9 @@ public class UserController {
 
     @GetMapping("/{id}")
     public GetUserByIdRequestDto findUserById(@PathVariable Long id) throws UserNotFoundExcpetion { return userService.findUserById(id);}
+
+    @GetMapping("/name/{username}")
+    public GetUserByUsernameDto findUserByUsername(@PathVariable String username) throws UserNotFoundExcpetion {return userService.findUserByUsername(username);}
 
     @PostMapping
     public Long addUser(@RequestBody @Valid CreateUserRequest request)

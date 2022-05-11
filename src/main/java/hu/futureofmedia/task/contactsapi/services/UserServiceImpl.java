@@ -5,6 +5,7 @@ import hu.futureofmedia.task.contactsapi.domain.Role;
 import hu.futureofmedia.task.contactsapi.domain.User;
 import hu.futureofmedia.task.contactsapi.dtos.CreateUserRequest;
 import hu.futureofmedia.task.contactsapi.dtos.GetUserByIdRequestDto;
+import hu.futureofmedia.task.contactsapi.dtos.GetUserByUsernameDto;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
 import hu.futureofmedia.task.contactsapi.exceptions.UserNotFoundExcpetion;
@@ -60,6 +61,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return user.getId();
 
+    }
+
+    @Override
+    public GetUserByUsernameDto findUserByUsername(String username) throws UserNotFoundExcpetion {
+        return mapper.userToGetUserByUsernameRequestDto(findUser(username));
     }
 
     @Override
