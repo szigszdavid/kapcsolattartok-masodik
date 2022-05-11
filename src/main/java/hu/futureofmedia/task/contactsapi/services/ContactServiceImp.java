@@ -119,7 +119,7 @@ public class ContactServiceImp implements ContactService {
 
         contact.setStatus(Status.DELETED);
 
-        log.debug("Contact before save: {}", contact);
+        log.debug("Contact before delete: {}", contact);
 
         contactRepository.save(contact);
 

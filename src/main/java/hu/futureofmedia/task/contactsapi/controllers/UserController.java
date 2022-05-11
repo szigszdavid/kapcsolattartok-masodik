@@ -70,7 +70,7 @@ public class UserController {
                 User user = userService.findUser(username);
 
                 String access_token = JWT.create()
-                        .withSubject(user.getUsername()) //Kell valami, amivel azonosítnai lehet a userket, unique dolog kell
+                        .withSubject(user.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 10000))
                         .withIssuer(request.getRequestURL().toString())
                         .withClaim("roles", user.getPrivileges().stream().map(Privilege::getName).collect(Collectors.toList()))

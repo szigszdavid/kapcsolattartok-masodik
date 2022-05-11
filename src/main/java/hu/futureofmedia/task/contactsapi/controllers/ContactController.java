@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,10 +32,12 @@ import java.util.Queue;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/contacts")
+@CrossOrigin("http://localhost:4200")
 public class ContactController {
 
     private final ContactService contactService;
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping
     public List<GetAllContactsDTO> findAllContacts(@RequestParam(name = "page", required = false) Integer page)
     {
@@ -43,7 +46,7 @@ public class ContactController {
 
     }
 
-    @Secured("ROLE_LIST")
+    //@Secured("ROLE_LIST")
     @GetMapping("/{id}")
     public GetContactByIdDTO findContactById(@PathVariable Long id) throws ContactNotFoundExcpetion
     {
@@ -51,7 +54,7 @@ public class ContactController {
         return contactService.findContactByID(id);
     }
 
-    @Secured("ROLE_CREATE")
+    //@Secured("ROLE_CREATE")
     @PostMapping
     public Long addContact(@Valid @RequestBody ContactDTO contactDTO)
     {
@@ -60,7 +63,7 @@ public class ContactController {
         return contactService.addContact(contactDTO);
     }
 
-    @Secured("ROLE_MODIFY")
+    //@Secured("ROLE_MODIFY")
     @PutMapping("/{id}")
     public Long updateContact(@Valid @RequestBody ContactDTO contactDTO, @PathVariable Long id) throws ContactNotFoundExcpetion
     {
@@ -68,7 +71,7 @@ public class ContactController {
         return contactService.updateContact(contactDTO, id);
     }
 
-    @Secured("ROLE_DELETE")
+    //@Secured("ROLE_DELETE")
     @DeleteMapping("/{id}")
     public void deleteContact(@PathVariable Long id) throws ContactNotFoundExcpetion
     {
