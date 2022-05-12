@@ -3,6 +3,7 @@ package hu.futureofmedia.task.contactsapi.security;
 import hu.futureofmedia.task.contactsapi.filter.CustomAuthenticationFilter;
 import hu.futureofmedia.task.contactsapi.filter.CustomAuthorizationFilter;
 import hu.futureofmedia.task.contactsapi.repositories.UserRepository;
+import hu.futureofmedia.task.contactsapi.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

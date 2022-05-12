@@ -7,10 +7,15 @@ import hu.futureofmedia.task.contactsapi.domain.Privilege;
 import hu.futureofmedia.task.contactsapi.domain.Role;
 import hu.futureofmedia.task.contactsapi.domain.User;
 import hu.futureofmedia.task.contactsapi.dtos.AuthRequest;
+import hu.futureofmedia.task.contactsapi.dtos.GetUserByUsernameDto;
+import hu.futureofmedia.task.contactsapi.exceptions.UserNotFoundExcpetion;
 import hu.futureofmedia.task.contactsapi.services.RoleService;
+import hu.futureofmedia.task.contactsapi.services.UserService;
+import hu.futureofmedia.task.contactsapi.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.jandex.PrimitiveType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,6 +43,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+
 
     /*
     @Override
@@ -101,6 +107,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                 .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("privileges", user.getPrivileges().stream().map(Privilege::getName).collect(Collectors.toList()))
+                .withClaim("fullName", user.getFullName())
                 .sign(algorithm);
 
         String refresh_token = JWT.create()
