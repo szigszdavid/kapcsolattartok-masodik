@@ -3,11 +3,9 @@ package hu.futureofmedia.task.contactsapi.services.datafetchers;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsDTO;
-import hu.futureofmedia.task.contactsapi.entities.Contact;
 import hu.futureofmedia.task.contactsapi.entities.Status;
 import hu.futureofmedia.task.contactsapi.mapper.ContactMapper;
 import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +19,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class FindAllContactsDataFetcher implements DataFetcher<List<Contact>> {
+public class FindAllContactsDataFetcher implements DataFetcher<List<GetAllContactsDTO>> {
 
     @Autowired
     private ContactRepository contactRepository;
@@ -32,12 +30,12 @@ public class FindAllContactsDataFetcher implements DataFetcher<List<Contact>> {
     private Integer numberOfContactsByPage;
 
     @Override
-    public List<Contact> get(DataFetchingEnvironment environment) {
+    public List<GetAllContactsDTO> get(DataFetchingEnvironment environment) {
 
         Integer page = environment.getArgument("page");
 
-        List<Contact> list =  contactRepository.findByStatus(Status.ACTIVE, createNewPageable(page)).toList();
-        log.info("");
+        List<GetAllContactsDTO> list = contactRepository.findByStatus(Status.ACTIVE, createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
+        log.info("data in list: {}", list);
         return list;
     }
 

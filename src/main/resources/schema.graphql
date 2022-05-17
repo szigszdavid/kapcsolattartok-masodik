@@ -4,7 +4,7 @@
  }
 
  type Query {
-     findAllContacts(page: Int) : [Contact],
+     findAllContacts(page: Int) : [GetAllContactDTO],
      findContactById(id: ID!): GetContactByIdDTO,
  }
 
@@ -24,6 +24,14 @@
      comment :String,
      company : Company!,
  }
+
+ type GetAllContactDTO {
+      id : ID!,
+      fullName : String!,
+      emailAddress : String!,
+      phoneNumber : String!,
+      company : Company!,
+  }
 
  type Contact {
 
