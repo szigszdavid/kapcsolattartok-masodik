@@ -10,4 +10,10 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     Page<Contact> findByStatus(Status status, Pageable pageable);
 
+    Page<Contact> findContactsByFirstNameContainingAndStatusOrLastNameContainingAndStatus(String firstName,Status statusFirst, String lastName, Status statusLast, Pageable pageable);
+
+    Page<Contact> findContactsByFirstNameContainingAndStatusAndLastNameContainingAndStatus(String firstName,Status statusFirst, String lastName, Status statusLast, Pageable pageable);
+
+    Page<Contact> findContactsByCompanyIdAndStatus(Long companyId,Status status, Pageable pageable);
+
 }

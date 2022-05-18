@@ -79,4 +79,18 @@ public class ContactController {
         contactService.deleteContact(id);
     }
 
+    @GetMapping("/search/name")
+    public List<GetAllContactsDTO> findContactsByName(@RequestParam(name = "page", required = false) Integer page,@RequestParam(name = "name", required = false) String name)
+    {
+        log.info("findAllContacts on page: {} called, name : {}", page, name);
+        return contactService.findContactsByName(page, name);
+    }
+
+    @GetMapping("/search/company")
+    public List<GetAllContactsDTO> findContactsByCompany(@RequestParam(name = "page", required = false) Integer page,@RequestParam(name = "companyId", required = false) String companyId)
+    {
+        log.info("findAllContacts on page: {} called, company : {}", page, companyId);
+        return contactService.findContactsByCompany(page, Long.parseLong(companyId));
+
+    }
 }

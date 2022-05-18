@@ -27,4 +27,8 @@ public interface ContactService {
 
     Pageable createNewPageable(Integer page);
 
+    List<GetAllContactsDTO> findContactsByName(Integer page, String name);
+
+    List<GetAllContactsDTO> findContactsByCompany(Integer page,Long company);
+
 }

@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.jms.Queue;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -151,6 +152,66 @@ public class ContactServiceImp implements ContactService {
         log.debug("Pageable created on page: {} with {} Contact/page", page, pageable.getPageSize());
 
         return pageable;
+    }
+
+    @Override
+    public List<GetAllContactsDTO> findContactsByName(Integer page, String name) {
+
+        List<GetAllContactsDTO>  allCorrectNames = new ArrayList<>();
+
+        if (name.split(" ").length >= 2)
+        {
+
+            String[] nameAfterSplit = name.split(" ");
+            log.error("{} és {}",nameAfterSplit[0], nameAfterSplit[1]);
+            List<GetAllContactsDTO> firstSublist = contactRepository.findContactsByFirstNameContainingAndStatusAndLastNameContainingAndStatus(nameAfterSplit[0], Status.ACTIVE, nameAfterSplit[1], Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
+            List<GetAllContactsDTO> secondSublist = contactRepository.findContactsByFirstNameContainingAndStatusAndLastNameContainingAndStatus(nameAfterSplit[1], Status.ACTIVE, nameAfterSplit[0], Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
+
+            if (!firstSublist.isEmpty())
+            {
+                allCorrectNames.addAll(firstSublist);
+            }
+            if(!secondSublist.isEmpty())
+            {
+                allCorrectNames.addAll(secondSublist);
+            }
+        }
+        else if (name.split(" ").length == 1)
+        {
+
+            String[] nameAfterSplit = name.split(" ");
+
+            List<GetAllContactsDTO> subList = contactRepository.findContactsByFirstNameContainingAndStatusOrLastNameContainingAndStatus(nameAfterSplit[0], Status.ACTIVE, nameAfterSplit[0], Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
+
+            if (!subList.isEmpty())
+            {
+                allCorrectNames.addAll(subList);
+            }
+        }
+        else
+        {
+            List<GetAllContactsDTO> subList = contactRepository.findContactsByFirstNameContainingAndStatusOrLastNameContainingAndStatus(name, Status.ACTIVE, name, Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
+
+            if (!subList.isEmpty())
+            {
+                allCorrectNames.addAll(subList);
+            }
+        }
+
+        return allCorrectNames;
+    }
+
+    @Override
+    public List<GetAllContactsDTO> findContactsByCompany(Integer page,Long companyId)
+    {
+        if (companyId == 0)
+        {
+            return findAllContacts(page);
+        }
+
+        log.error("type of companyID : {}", companyId.getClass());
+
+        return contactRepository.findContactsByCompanyIdAndStatus(companyId, Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
     }
 
 
