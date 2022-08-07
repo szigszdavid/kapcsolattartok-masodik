@@ -3,6 +3,7 @@ package hu.futureofmedia.task.contactsapi.services;
 import graphql.GraphQL;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsDTO;
+import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsWithNumberOfContactsDto;
 import hu.futureofmedia.task.contactsapi.dtos.GetContactByIdDTO;
 import hu.futureofmedia.task.contactsapi.entities.Company;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
@@ -13,7 +14,7 @@ import java.util.concurrent.Executor;
 
 public interface ContactService {
 
-    List<GetAllContactsDTO> findAllContacts(Integer page);
+    GetAllContactsWithNumberOfContactsDto findAllContacts(Integer page, String orderBy, String orderWay, Integer size);
 
     Long addContact(ContactDTO contactDTO);
 
@@ -27,8 +28,8 @@ public interface ContactService {
 
     Pageable createNewPageable(Integer page);
 
-    List<GetAllContactsDTO> findContactsByName(Integer page, String name);
+    GetAllContactsWithNumberOfContactsDto findContactsByName(Integer page, String name);
 
-    List<GetAllContactsDTO> findContactsByCompany(Integer page,Long company);
+    GetAllContactsWithNumberOfContactsDto findContactsByCompany(Integer page,Long company);
 
 }

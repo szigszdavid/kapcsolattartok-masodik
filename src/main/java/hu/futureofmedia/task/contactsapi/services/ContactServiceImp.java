@@ -6,6 +6,7 @@ import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.*;
 import hu.futureofmedia.task.contactsapi.dtos.ContactDTO;
 import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsDTO;
+import hu.futureofmedia.task.contactsapi.dtos.GetAllContactsWithNumberOfContactsDto;
 import hu.futureofmedia.task.contactsapi.dtos.GetContactByIdDTO;
 import hu.futureofmedia.task.contactsapi.entities.Company;
 import hu.futureofmedia.task.contactsapi.entities.Contact;
@@ -19,7 +20,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -32,6 +35,7 @@ import java.io.IOException;
 import javax.jms.Queue;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -54,10 +58,17 @@ public class ContactServiceImp implements ContactService {
     private Integer numberOfContactsByPage;
 
     @Override
-    public List<GetAllContactsDTO> findAllContacts(Integer page)
+    public GetAllContactsWithNumberOfContactsDto findAllContacts(Integer page, String orderBy, String orderWay, Integer size)
     {
         log.info("findAllContacts called on page: {}", page);
-        return contactRepository.findByStatus(Status.ACTIVE, createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
+        if (size != null) {
+            numberOfContactsByPage = size;
+            log.error("size: {}", size);
+        }
+        List<GetAllContactsDTO> list  = contactRepository.findByStatus(Status.ACTIVE, createNewPageableWith(page, orderBy, orderWay)).map(mapper::contactToGetAllContactsDTO).toList();
+        log.info("findAllContacts found {} page of Contacts", list.size());
+
+        return createGetAllContactsWithNumber(list, page);
     }
 
 
@@ -154,18 +165,73 @@ public class ContactServiceImp implements ContactService {
         return pageable;
     }
 
+    private Pageable createNewPageableWith(Integer page, String orderBy, String orderWay)
+    {
+        log.info("createNewPageableWith called, sortBy : {}, sortWay : {}",orderBy, orderWay);
+        if(orderBy != null)
+        {
+            if(orderBy.equals("emailaddress"))
+            {
+                orderBy = "emailAddress";
+            }
+            else if(orderBy.equals("company")) {}
+            else {
+                orderBy = null;
+            }
+        }
+
+        if( orderBy == null && orderWay == null)
+        {
+            log.info("createNewPageable called with page: {}", page);
+
+            return PageRequest.of(page == null ? 0 : page,numberOfContactsByPage, Sort.by("firstName").and(Sort.by("lastName")));
+        }
+        else if( orderBy == null && orderWay.equals("desc"))
+        {
+            log.info("createNewPageable called with page: {}", page);
+
+            return PageRequest.of(page == null ? 0 : page,numberOfContactsByPage, Sort.by("firstName").descending().and(Sort.by("lastName")).descending());
+        }
+        else if ( orderBy != null && orderWay == null)
+        {
+            log.info("createNewPageable called with page: {}, orderBy: {}", page, orderBy);
+            return PageRequest.of(page == null ? 0 : page,numberOfContactsByPage, Sort.by(orderBy));
+        }
+        else if( orderBy != null && orderWay.equals("desc"))
+        {
+            log.info("createNewPageable called with page: {}, desc");
+            return PageRequest.of(page == null ? 0 : page,numberOfContactsByPage, Sort.by(orderBy).descending());
+        }
+        log.info("No match");
+
+        return null;
+    }
+
     @Override
-    public List<GetAllContactsDTO> findContactsByName(Integer page, String name) {
+    public GetAllContactsWithNumberOfContactsDto findContactsByName(Integer page, String name) {
 
         List<GetAllContactsDTO>  allCorrectNames = new ArrayList<>();
 
+//        var parts = Arrays.asList(name.split(" "));
+//        var p = contactRepository.findAllByName(parts, createNewPageable(page));
+//        p.map(mapper::contactToGetAllContactsDTO);
+
+        int totalLength = 0 ;
         if (name.split(" ").length >= 2)
         {
 
             String[] nameAfterSplit = name.split(" ");
             log.error("{} és {}",nameAfterSplit[0], nameAfterSplit[1]);
-            List<GetAllContactsDTO> firstSublist = contactRepository.findContactsByFirstNameContainingAndStatusAndLastNameContainingAndStatus(nameAfterSplit[0], Status.ACTIVE, nameAfterSplit[1], Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
-            List<GetAllContactsDTO> secondSublist = contactRepository.findContactsByFirstNameContainingAndStatusAndLastNameContainingAndStatus(nameAfterSplit[1], Status.ACTIVE, nameAfterSplit[0], Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
+            var firstSubPage = contactRepository.findContactsByFirstNameContainingAndStatusAndLastNameContainingAndStatus(nameAfterSplit[0], Status.ACTIVE, nameAfterSplit[1], Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO);
+            totalLength += firstSubPage.getTotalElements();
+            List<GetAllContactsDTO> firstSublist = firstSubPage.getContent();
+            var lastSubPage =  contactRepository.findContactsByFirstNameContainingAndStatusAndLastNameContainingAndStatus(nameAfterSplit[1], Status.ACTIVE, nameAfterSplit[0], Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO);
+            totalLength += lastSubPage.getTotalElements();
+            List<GetAllContactsDTO> secondSublist = lastSubPage.getContent();
+
+
+            Page<GetAllContactsDTO> newVersion = contactRepository.findContactsByStatusAndFirstNameContainingOrLastNameContaining(Status.ACTIVE, nameAfterSplit[0], nameAfterSplit[1], createNewPageable(page)).map(mapper::contactToGetAllContactsDTO);
+            log.error("New version: {}, {}", newVersion, newVersion.getTotalElements());
 
             if (!firstSublist.isEmpty())
             {
@@ -178,10 +244,11 @@ public class ContactServiceImp implements ContactService {
         }
         else if (name.split(" ").length == 1)
         {
-
             String[] nameAfterSplit = name.split(" ");
 
-            List<GetAllContactsDTO> subList = contactRepository.findContactsByFirstNameContainingAndStatusOrLastNameContainingAndStatus(nameAfterSplit[0], Status.ACTIVE, nameAfterSplit[0], Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
+            var subPage = contactRepository.findContactsByFirstNameContainingAndStatusOrLastNameContainingAndStatus(nameAfterSplit[0], Status.ACTIVE, nameAfterSplit[0], Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO);
+            totalLength += subPage.getTotalElements();
+            List<GetAllContactsDTO> subList = subPage.getContent();
 
             if (!subList.isEmpty())
             {
@@ -190,7 +257,9 @@ public class ContactServiceImp implements ContactService {
         }
         else
         {
-            List<GetAllContactsDTO> subList = contactRepository.findContactsByFirstNameContainingAndStatusOrLastNameContainingAndStatus(name, Status.ACTIVE, name, Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
+            var subPage = contactRepository.findContactsByFirstNameContainingAndStatusOrLastNameContainingAndStatus(name, Status.ACTIVE, name, Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO);
+            totalLength += subPage.getTotalElements();
+            List<GetAllContactsDTO> subList = subPage.getContent();
 
             if (!subList.isEmpty())
             {
@@ -198,20 +267,48 @@ public class ContactServiceImp implements ContactService {
             }
         }
 
-        return allCorrectNames;
+        Integer numberOfPages = totalLength / numberOfContactsByPage;
+
+        if (numberOfPages % numberOfContactsByPage != 0)
+        {
+            numberOfPages++;
+        }
+        log.info("{},{},{}, {}", numberOfPages, totalLength, page + 1, numberOfContactsByPage);
+
+        allCorrectNames = allCorrectNames.size() > numberOfContactsByPage ?
+                allCorrectNames.subList(0, numberOfContactsByPage) : allCorrectNames;
+
+        return new GetAllContactsWithNumberOfContactsDto(allCorrectNames, numberOfPages, totalLength, page + 1, numberOfContactsByPage);
     }
 
     @Override
-    public List<GetAllContactsDTO> findContactsByCompany(Integer page,Long companyId)
+    public GetAllContactsWithNumberOfContactsDto findContactsByCompany(Integer page,Long companyId)
     {
         if (companyId == 0)
         {
-            return findAllContacts(page);
+            return findAllContacts(page, null, null, null);
         }
 
         log.error("type of companyID : {}", companyId.getClass());
 
-        return contactRepository.findContactsByCompanyIdAndStatus(companyId, Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO).toList();
+        int totalLength = 0;
+        var list = contactRepository.findContactsByCompanyIdAndStatus(companyId, Status.ACTIVE,createNewPageable(page)).map(mapper::contactToGetAllContactsDTO);
+        totalLength += list.getTotalElements();
+        List<GetAllContactsDTO> allCorrectNames = list.getContent();
+
+        Integer numberOfPages = totalLength / numberOfContactsByPage;
+
+        if (numberOfPages % numberOfContactsByPage != 0)
+        {
+            numberOfPages++;
+        }
+        log.info("{},{},{}, {}", numberOfPages, totalLength, page + 1, numberOfContactsByPage);
+
+        allCorrectNames = allCorrectNames.size() > numberOfContactsByPage ?
+                allCorrectNames.subList(0, numberOfContactsByPage) : allCorrectNames;
+
+
+        return new GetAllContactsWithNumberOfContactsDto(allCorrectNames, numberOfPages, totalLength, page + 1, numberOfContactsByPage);
     }
 
 
@@ -230,6 +327,23 @@ public class ContactServiceImp implements ContactService {
 
         contact.setCompany(company);
 
+    }
+
+    private GetAllContactsWithNumberOfContactsDto createGetAllContactsWithNumber(List<GetAllContactsDTO> list, Integer currentPageNumber)
+    {
+        Integer totalLength = contactRepository.findByStatus(Status.ACTIVE, null).getNumberOfElements();
+
+        Integer numberOfPages= totalLength / numberOfContactsByPage;
+
+        if (numberOfPages % numberOfContactsByPage != 0)
+        {
+            numberOfPages++;
+        }
+        log.info("There is {} page total", numberOfPages);
+//        log.info("{},{},{}, {}", numberOfPages, totalLength, currentPageNumber + 1, numberOfContactsByPage);
+        GetAllContactsWithNumberOfContactsDto dto = new GetAllContactsWithNumberOfContactsDto(list, numberOfPages, totalLength, currentPageNumber == null ? 0 : currentPageNumber + 1, numberOfContactsByPage);
+
+        return dto;
     }
 
 
